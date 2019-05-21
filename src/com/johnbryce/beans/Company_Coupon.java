@@ -3,7 +3,7 @@ package com.johnbryce.beans;
 /**
  * this is the object representing the association of a coupon with a company
  * 
- * @author Michal & Eivy
+ * @author Eivy & Michal
  *
  */
 public class Company_Coupon {
