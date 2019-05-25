@@ -22,7 +22,7 @@ import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.RemoveException;
 import com.johnbryce.exception.UpdateException;
 
-import projectCoupon.utils.Utile;
+import Utils.utils;;
 
 public class CompanyFacade implements CouponClientFacade {
 
@@ -101,7 +101,7 @@ public class CompanyFacade implements CouponClientFacade {
 				Date startDate = (Date) coupon.getStart_date();
 				Date endDate = (Date) coupon.getEnd_date();
 				if (startDate.getTime() <= endDate.getTime()) {
-					if (startDate.getTime() >= Utile.getCurrentDate().getTime()) {
+					if (startDate.getTime() >= utils.getCurrentDate().getTime()) {
 						if (!couponDAO.isCouponTitleExists(CoupTitle)) {
 							couponDAO.insertCoupon(coupon);
 							company_CouponDAO.insertCompany_Coupon(companyId, coupon.getCouponId());

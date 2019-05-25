@@ -16,7 +16,7 @@ import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.RemoveException;
 import com.johnbryce.exception.UpdateException;
 
-import projectCoupon.utils.ConnectionPool;
+import Utils.ConnectionPool;
 
 /**
  * this class implements data base operations for Coupon's requirements.
@@ -29,13 +29,20 @@ public class CouponDBDAO implements CouponDAO {
 
 	/**
 	 * cTor for the coupon object.
+	 * @throws Exception.CouponException 
 	 * 
 	 * @throws CouponException
+	 * @throws CouponException 
 	 */
-	public CouponDBDAO() throws CouponException {
+	public CouponDBDAO() throws CouponException  {
 		try {
-			pool = ConnectionPool.getInstance();
-		} catch (SQLException e) {
+			try {
+				pool = ConnectionPool.getInstance();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
 			throw new CouponException("connection failed");
 		}
 	}
@@ -55,8 +62,13 @@ public class CouponDBDAO implements CouponDAO {
 
 		Connection connection = null;
 		try {
-			connection = pool.getConnection();
-		} catch (CouponException e) {
+			try {
+				connection = pool.getConnection();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
 			throw new CreateException("didnt success to connect " + e.getMessage());
 		}
 		String sql = "INSERT INTO Coupon (ID,title,start_date,end_date,amount,type,message,price,image) VALUES(?,?,?,?,?,?,?,?,?)";
@@ -82,8 +94,13 @@ public class CouponDBDAO implements CouponDAO {
 				throw new CreateException("close connection was failed " + e1.getMessage());
 			}
 			try {
-				pool.returnConnection(connection);
-			} catch (CouponException e) {
+				try {
+					pool.returnConnection(connection);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (Exception e) {
 				throw new CreateException("return connection was failed " + e.getMessage());
 			}
 
@@ -104,7 +121,7 @@ public class CouponDBDAO implements CouponDAO {
 		Connection connection = null;
 		try {
 			connection = pool.getConnection();
-		} catch (CouponException e) {
+		} catch (Exception e) {
 			throw new CreateException("didnt success to connect " + e.getMessage());
 		}
 		String sql = "DELETE FROM Coupon WHERE ID=?";
@@ -129,7 +146,7 @@ public class CouponDBDAO implements CouponDAO {
 			}
 			try {
 				pool.returnConnection(connection);
-			} catch (CouponException e) {
+			} catch (Exception e) {
 				throw new RemoveException("return connection failed"+e.getMessage());
 			}
 
@@ -151,7 +168,7 @@ public class CouponDBDAO implements CouponDAO {
 		Connection connection = null;
 		try {
 			connection = pool.getConnection();
-		} catch (CouponException e) {
+		} catch (Exception e) {
 			throw new CreateException("didnt success to connect " + e.getMessage());
 		}
 		try {
@@ -178,7 +195,7 @@ public class CouponDBDAO implements CouponDAO {
 			}
 			try {
 				pool.returnConnection(connection);
-			} catch (CouponException e) {
+			} catch (Exception e) {
 				throw new CreateException(" return connection failed " + e.getMessage());
 			}
 		}
@@ -199,7 +216,7 @@ public class CouponDBDAO implements CouponDAO {
 		Connection connection = null;
 		try {
 			connection = pool.getConnection();
-		} catch (CouponException e) {
+		} catch (Exception e) {
 			throw new CreateException("didnt success to connect " + e.getMessage());
 		}
 		Coupon coupon = null;
@@ -252,7 +269,12 @@ public class CouponDBDAO implements CouponDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed " + e.getMessage());
 			}
-			pool.returnConnection(connection);
+			try {
+				pool.returnConnection(connection);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 		return coupon;
@@ -326,7 +348,12 @@ public class CouponDBDAO implements CouponDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed" + e.getMessage());
 			}
-			pool.returnConnection(connection);
+			try {
+				pool.returnConnection(connection);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return set;
 	}
@@ -472,8 +499,13 @@ public class CouponDBDAO implements CouponDAO {
 
 	public Set<Coupon> getAllCouponsByType(CouponType couponType) throws CouponException {
 
-		Connection connection;
-		connection = pool.getConnection();
+		Connection connection = null;
+		try {
+			connection = pool.getConnection();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		try {
 			Set<Coupon> list = new HashSet<>();
@@ -659,7 +691,7 @@ public class CouponDBDAO implements CouponDAO {
 
 			try {
 				pool.returnConnection(connection);
-			} catch (CouponException e) {
+			} catch (Exception e) {
 			}
 
 		}
