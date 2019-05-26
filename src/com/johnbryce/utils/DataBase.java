@@ -1,13 +1,13 @@
-package DataBase;
+package com.johnbryce.utils;
 
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import Exception.CouponException;
-import Exception.CreateException;
-import Exception.RemoveException;
-import Utils.ConnectionPool;
+
+import com.johnbryce.exception.CouponException;
+import com.johnbryce.exception.CreateException;
+import com.johnbryce.exception.RemoveException;
 
 
 

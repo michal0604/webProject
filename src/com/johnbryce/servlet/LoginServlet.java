@@ -9,11 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.johnbryce.exceptions.DbdaoException;
-import com.johnbryce.exceptions.LoginException;
-import com.johnbryce.facade.ClientType;
-import com.johnbryce.facade.CouponClientFacade;
-import com.johnbryce.facade.CouponSystemSingleton;
+import com.johnbryce.exception.CouponException;
+import com.johnbryce.facad.CouponClientFacade;
+import com.johnbryce.utils.ClientType;
+import com.johnbryce.utils.CouponSystem;
 
 /**
  * Servlet implementation class LoginServlet
@@ -22,7 +21,7 @@ import com.johnbryce.facade.CouponSystemSingleton;
 public class LoginServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private CouponSystemSingleton system;
+	private CouponSystem system;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -33,14 +32,15 @@ public class LoginServlet extends HttpServlet {
 
 	// init function - start the Coupon System
 	@Override
-	public void init() throws ServletException {
-		try {
-			system = CouponSystemSingleton.getInstance();
-		} catch (DbdaoException e) {
-			System.out.println("Failed to connect to db, Failed to load system");
-			System.exit(1);
-		}
-		System.out.println("Loaded...");
+	public void init() {
+			try {
+				system = CouponSystem.getInstance();
+			} catch (CouponException e) {
+				System.out.println("Failed to connect to db, Failed to load system");
+				System.exit(1);
+			}
+			System.out.println("Loaded...");
+
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class LoginServlet extends HttpServlet {
 				session.setAttribute("facade", facade);
 				// dispatcher to the right Page according to the Client Type
 				switch (type) {
-				case ADMINISTRATOR:
+				case ADMIN:
 					request.getRequestDispatcher("web/admin.html").forward(request, response);
 					break;
 

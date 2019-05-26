@@ -14,8 +14,8 @@ import javax.ws.rs.core.MediaType;
 
 import com.google.gson.Gson;
 import com.johnbryce.beans.Company;
-
 import com.johnbryce.beans.Customer;
+import com.johnbryce.exception.CouponException;
 import com.johnbryce.facad.AdminFacad;
 
 
@@ -51,7 +51,7 @@ public class AdminService {
 
 		try {
 			if (admin.createCompany(company) != null) {
-				return "SUCCEED TO ADD A NEW COMPANY: name = " + compName + ", id = " + company.getId();
+				return "SUCCEED TO ADD A NEW COMPANY: name = " + compName + ", id = " + company.getCompanyId();
 			}
 		} catch (DbdaoException | FacadeException e) {
 			e.printStackTrace();
@@ -99,9 +99,7 @@ public class AdminService {
 			Company company = admin.getCompany(id);
 
 			if (company != null) {
-				company.setPassword(password);
-				company.setEmail(email);
-				admin.updateCompany(company);
+				admin.updateCompany(company, password, email);
 				return "SUCCEED TO UPDATE A COMPANY: pass = " + company.getPassword() + ",e-mail = "
 						+ company.getEmail() + ", id = " + id;
 			}
@@ -119,24 +117,24 @@ public class AdminService {
 	public String getAllCompanies() {
 
 		// Getting the session and the logged in facade object
-		AdminFacade admin = getFacade();
+		AdminFacad admin = getFacade();
 
 		// Get the List of all the Companies from the Table in the DataBase
 
 		try {
 			Collection<Company> companies = admin.getAllCompanies();
-			Collection<CompanyInfo> companiesInfo = new ArrayList<>();
+			//TODO Collection<CompanyInfo> companiesInfo = new ArrayList<>();
 
 			if (!companies.isEmpty()) {
 				for (Company company : companies) {
-					CompanyInfo comapnyInfo = new CompanyInfo(company);
-					companiesInfo.add(comapnyInfo);
+					//TODO CompanyInfo comapnyInfo = new CompanyInfo(company);
+					//TODO companiesInfo.add(comapnyInfo);
 				}
 			}
 
-			return new Gson().toJson(companiesInfo);
+			return new Gson().toJson(companies);
 
-		} catch (DbdaoException e) {
+		} catch (CouponException e) {
 			e.printStackTrace();
 		}
 
@@ -149,12 +147,12 @@ public class AdminService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getCompany(@QueryParam("compId") long id) {
 
-		AdminFacade admin = getFacade();
+		AdminFacad admin = getFacade();
 
 		try {
 			Company company = admin.getCompany(id);
 			if (company != null) {
-				return new Gson().toJson(new CompanyInfo(company));				
+				return new Gson().toJson(company);				
 			}
 		} catch (DbdaoException e) {
 			e.printStackTrace();
@@ -172,19 +170,15 @@ public class AdminService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String Customer(@QueryParam("name") String custName, @QueryParam("pass") String password) {
 
-		AdminFacade admin = getFacade();
+		AdminFacad admin = getFacade();
 
-		Customer customer = new Customer(custName, password);
+		Customer customer = new Customer(0,custName, password);
+		
 
-		try {
 			if (admin.createCustomer(customer) != null) {
-				return "SUCCEED TO ADD A NEW CUSTOMER: name = " + custName + ", id = " + customer.getId();
+				return "SUCCEED TO ADD A NEW CUSTOMER: name = " + custName + ", id = " + customer.getCustomerId();
 			}
-		} catch (DbdaoException | FacadeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		
 		return "FAILED TO ADD A NEW CUSTOMER: " + "There is already a customer	 with the same name: " + custName
 				+ " - please change the customer name";
 
@@ -196,16 +190,16 @@ public class AdminService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String removeCustomer(@QueryParam("custId") long id) {
 
-		AdminFacade admin = getFacade();
+		AdminFacad admin = getFacade();
 
 		try {
 			Customer customer = admin.getCustomer(id);
 			if (customer != null) {
 				admin.removeCustomer(customer);
-				return "SUCCEED TO REMOVE A CUSTOMER: name = " + customer.getCustName() + ", id = " + id;
+				return "SUCCEED TO REMOVE A CUSTOMER: name = " + customer.getCustomerName() + ", id = " + id;
 			}
 
-		} catch (DbdaoException e) {
+		} catch (CouponException e) {
 			e.printStackTrace();
 		}
 
@@ -218,14 +212,13 @@ public class AdminService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String updateCustomer(@QueryParam("custId") long id, @QueryParam("pass") String password) {
 
-		AdminFacade admin = getFacade();
+		AdminFacad admin = getFacade();
 
 		Customer customer;
 		try {
 			customer = admin.getCustomer(id);
 			if (customer != null) {
-				customer.setPassword(password);
-				admin.updateCustomer(customer);
+				admin.updateCustomer(customer, password);
 				return "SUCCEED TO UPDATE A CUSTOMER: pass = " + customer.getPassword() + ", id = " + id;
 			}
 		} catch (DbdaoException e) {
@@ -240,24 +233,24 @@ public class AdminService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getAllCustomers() {
 
-		AdminFacade admin = getFacade();
+		AdminFacad admin = getFacade();
 
 		// Provide a List of all the Customers from the Table in the DataBase
 
 		try {
 			Collection<Customer> customers = admin.getAllCustomers();
-			Collection<CustomerInfo> customersInfo = new ArrayList<>();
+			// TODO  Collection<CustomerInfo> customersInfo = new ArrayList<>();
 
 			if (!customers.isEmpty()) {
 				for (Customer customer : customers) {
-					System.out.println(customer.getCustName() + ", id = " + customer.getId()); // for
-					CustomerInfo webCustomer = new CustomerInfo(customer);
-					customersInfo.add(webCustomer);
+					System.out.println(customer.getCustomerName() + ", id = " + customer.getCustomerId()); // for
+					//TODO CustomerInfo webCustomer = new CustomerInfo(customer);
+					//TODO customersInfo.add(webCustomer);
 				}
-				return new Gson().toJson(customersInfo);
+				return new Gson().toJson(customers);
 			}
 
-		} catch (DbdaoException e) {
+		} catch (CouponException e) {
 			e.printStackTrace();
 		}
 
@@ -271,15 +264,15 @@ public class AdminService {
 	public String getCustomer(@QueryParam("custId") long id) {
 
 		// Getting the session and the logged in facade object
-		AdminFacade admin = getFacade();
+		AdminFacad admin = getFacade();
 
 		try {
 			Customer customer = admin.getCustomer(id);
 			if (customer != null) {
-				System.out.println(customer.getCustName() + ", id = " + customer.getId()); // for
-				return new Gson().toJson(new CustomerInfo(customer));
+				System.out.println(customer.getCustomerName() + ", id = " + customer.getCustomerId()); // for
+				return new Gson().toJson(customer);
 			}
-		} catch (DbdaoException e) {
+		} catch (CouponException e) {
 			e.printStackTrace();
 		}
 

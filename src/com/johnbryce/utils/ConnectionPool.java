@@ -1,4 +1,4 @@
-package Utils;
+package com.johnbryce.utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,9 +6,7 @@ import java.sql.SQLException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import DataBase.DataBase;
-
-import Exception.CouponException;
+import com.johnbryce.exception.CouponException;
 
 /**
  * @author Eivy & Michal
@@ -25,7 +23,7 @@ public class ConnectionPool {
 
 	private ConnectionPool() throws CouponException {
 		try {
-			Class.forName(utils.getDriverData());
+			Class.forName(Utile.getDriverData());
 		} catch (Exception e) {
 			throw new CouponException(e.getMessage());
 		}

@@ -15,8 +15,7 @@ import com.johnbryce.exception.CouponException;
 import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.RemoveException;
 import com.johnbryce.exception.UpdateException;
-
-import Utils.ConnectionPool;
+import com.johnbryce.utils.ConnectionPool;
 
 /**
  * this class implements data base operations for Coupon's requirements.

@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,8 +13,7 @@ import com.johnbryce.dao.CompanyDAO;
 import com.johnbryce.exception.CompanyException;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.exception.CreateException;
-
-import Utils.ConnectionPool;
+import com.johnbryce.utils.ConnectionPool;
 
 /**
  * this class implement the DB operations associated with the Company's data

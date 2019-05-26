@@ -1,8 +1,9 @@
-package Utils;
+package com.johnbryce.utils;
 
 import java.sql.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import com.johnbryce.beans.Coupon;
 import com.johnbryce.dao.Company_CouponDAO;
 import com.johnbryce.dao.CouponDAO;
@@ -79,10 +80,10 @@ public class DailyCouponExpirationTask implements Runnable {
 			try {
 				Date date;
 				if (DEBUG) {
-					date = utils.getDateAfter(DEBUG_DAY_ADDER);
+					date = Utile.getDateAfter(DEBUG_DAY_ADDER);
 					DEBUG_DAY_ADDER++;
 				} else {
-					date = utils.getCurrentDate();
+					date = Utile.getCurrentDate();
 				}
 				System.out.println(date.toString() + " - Daily Task Running...");
 				Set<Coupon> allCoupons = couponDAO.getAllCoupons();

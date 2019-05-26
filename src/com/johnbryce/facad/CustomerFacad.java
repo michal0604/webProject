@@ -13,8 +13,7 @@ import com.johnbryce.dbdao.Customer_CouponDBDAO;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.UpdateException;
-
-import Utils.utils;
+import com.johnbryce.utils.Utile;
 
 /**
  * @author Eivy & Michal
@@ -61,7 +60,7 @@ public class CustomerFacad implements CouponClientFacade {
 		}
 		if (coupon != null) {
 			if (coupon.getAmount() > 0) {
-				if (coupon.getEnd_date().getTime() >= utils.getCurrentDate().getTime()) {
+				if (coupon.getEnd_date().getTime() >= Utile.getCurrentDate().getTime()) {
 					if (!customer_CouponDAO.isCouponPurchasedByCustomer(custId, coupId)){
 						coupon.setAmount(coupon.getAmount() - 1);
 						try {

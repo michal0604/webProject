@@ -1,4 +1,4 @@
-package projectCoupon.utils;
+package com.johnbryce.utils;
 
 import java.sql.Date;
 import java.time.LocalDate;

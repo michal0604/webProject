@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,8 +15,8 @@ import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.CustomerException;
 import com.johnbryce.exception.RemoveException;
 import com.johnbryce.exception.UpdateException;
+import com.johnbryce.utils.ConnectionPool;
 
-import Utils.ConnectionPool;
 
 /**
  * this class implement the DB operations associated with the customer's data

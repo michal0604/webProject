@@ -1,9 +1,9 @@
-package Utils;
+package com.johnbryce.utils;
 
 import java.sql.Connection;
 
-import Exception.CouponException;
-import Exception.DailyCouponException;
+import com.johnbryce.exception.CouponException;
+import com.johnbryce.exception.DailyCouponException;
 import com.johnbryce.facad.AdminFacad;
 import com.johnbryce.facad.CompanyFacade;
 import com.johnbryce.facad.CouponClientFacade;
@@ -37,12 +37,7 @@ public class CouponSystem {
 
 	private CouponSystem() throws CouponException {
 		// Activate the daily Coupons Deletion Demon (Thread)
-		try {
-			DailyTask = new DailyCouponExpirationTask(SLEEPTIME);
-		} catch (com.johnbryce.exception.CouponException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		DailyTask = new DailyCouponExpirationTask(SLEEPTIME);
 		thread = new Thread(DailyTask);
 		thread.start();
 	}
@@ -66,18 +61,18 @@ public class CouponSystem {
 	 * @return
 	 * @throws Exception
 	 */
-	public static com.johnbryce.facad.CouponClientFacade login(String name, String password, ClientType clientType) throws Exception {
-		com.johnbryce.facad.CouponClientFacade couponClientFacade = null;
+	public static CouponClientFacade login(String name, String password, ClientType clientType) throws Exception {
+		CouponClientFacade couponClientFacade = null;
 
 		switch (clientType) {
 		case ADMIN:
-			couponClientFacade = new com.johnbryce.facad.AdminFacad();
+			couponClientFacade = new AdminFacad();
 			break;
 		case COMPANY:
-			couponClientFacade = new com.johnbryce.facad.CompanyFacade();
+			couponClientFacade = new CompanyFacade();
 			break;
 		case CUSTOMER:
-			couponClientFacade = new com.johnbryce.facad.CustomerFacad();
+			couponClientFacade = new CustomerFacad();
 			break;
 		default:
 			throw new CouponException("login failed");
