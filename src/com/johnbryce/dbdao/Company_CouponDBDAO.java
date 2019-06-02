@@ -35,7 +35,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	public Company_CouponDBDAO() throws CouponException {
 		try {
 			pool = ConnectionPool.getInstance();
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			throw new CouponException("connection failed");
 		}
 	}
@@ -46,14 +46,13 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	 * @param companyId the id of the company
 	 * @param couponId  the id of the coupon
 	 * @throws CreateException if there was an error during the creation of the link in Data object
-	 * @throws CouponException 
 	 */
 	@Override
 	public void insertCompany_Coupon(long companyId, long couponId) throws CreateException {
 		Connection connection;
 		try {
 			connection = pool.getConnection();
-		} catch (Exception e) {
+		} catch (CouponException e) {
 			throw new CreateException("connection failed");
 		}
 
@@ -77,7 +76,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 
 			try {
 				pool.returnConnection(connection);
-			} catch (Exception e) {
+			} catch (CouponException e) {
 				throw new CreateException("return connection failed " + e.getMessage());
 			}
 		}
@@ -96,7 +95,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 		Connection connection;
 		try {
 			connection = pool.getConnection();
-		} catch (Exception e2) {
+		} catch (CouponException e2) {
 			throw new RemoveException("connection failed");
 		}
 		String sql = "DELETE FROM COMPANY_COUPON  WHERE company_ID=? AND Coupon_ID=?";
@@ -123,7 +122,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			}
 			try {
 				pool.returnConnection(connection);
-			} catch (Exception e) {
+			} catch (CouponException e) {
 				throw new RemoveException("return connection failed " + e.getMessage());
 			}
 		}
@@ -139,13 +138,8 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	@Override
 	public void removeCompany_CouponByCouponId(long couponId) throws CouponException, RemoveException {
 
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+		Connection connection;
+		connection = pool.getConnection();
 		String sql = "delete from Company_Coupon where coupon_ID = ?";
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -168,7 +162,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			}
 			try {
 				pool.returnConnection(connection);
-			} catch (Exception e) {
+			} catch (CouponException e) {
 				throw new RemoveException("return connection failed " + e.getMessage());
 			}
 
@@ -187,7 +181,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 		Connection connection;
 		try {
 			connection = pool.getConnection();
-		} catch (Exception e) {
+		} catch (CouponException e) {
 			throw new RemoveException("connection failed " + e.getMessage());
 		}
 		String sql = "delete from Company_Coupon where company_ID = ?";
@@ -214,7 +208,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			}
 			try {
 				pool.returnConnection(connection);
-			} catch (Exception e) {
+			} catch (CouponException e) {
 				throw new RemoveException("return connction failed " + e.getMessage());
 			}
 		}
@@ -232,22 +226,12 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	@Override
 	public Set<Long> getCompanysByCouponId(long couponId) throws CouponException {
 		try {
-			try {
-				pool = ConnectionPool.getInstance();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			pool = ConnectionPool.getInstance();
+		} catch (SQLException e) {
 			throw new CouponException("connnection failed");
 		}
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection;
+		connection = pool.getConnection();
 		Set<Long> list = new HashSet<Long>();
 		String sql = "select * from Company_Coupon where Coupon_ID = " + couponId;
 		try {
@@ -265,12 +249,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed"+e.getMessage());
 			}
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 
 		return list;
@@ -287,22 +266,12 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	@Override
 	public Set<Long> getCouponsByCompanyId(long companyId) throws CouponException {
 		try {
-			try {
-				pool = ConnectionPool.getInstance();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			pool = ConnectionPool.getInstance();
+		} catch (SQLException e) {
 			throw new CouponException("connnection failed");
 		}
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection;
+		connection = pool.getConnection();
 		Set<Long> list = new HashSet<Long>();
 		String sql = "select * from Company_Coupon where company_Id = " + companyId;
 		try {
@@ -320,12 +289,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed"+e.getMessage());
 			}
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 
 		return list;
@@ -340,13 +304,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	 */
 	@Override
 	public Set<Company_Coupon> getAllCompany_Coupons() throws CouponException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		Set<Company_Coupon> set = new HashSet<Company_Coupon>();
 		
 			String sql = "SELECT * FROM COMPANY_COUPON";
@@ -366,12 +324,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed " + e.getMessage());
 			}
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 		return set;
 	}
@@ -386,15 +339,10 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	 */
 	@Override
 	public void updateCompany_Coupon(long companyId, long couponId) throws UpdateException {
-		Connection connection = null;
+		Connection connection;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new UpdateException("connection failed " + e.getMessage());
 		}
 		
@@ -412,13 +360,8 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			throw new UpdateException("connection close failed " + e.getMessage());
 		}
 		try {
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			pool.returnConnection(connection);
+		} catch (CouponException e) {
 			throw new UpdateException("return connection failed " + e.getMessage());
 		}
 	}
@@ -434,13 +377,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 	 */
 	@Override
 	public boolean isCouponExistsForCompany(long companyId, long couponId) throws CouponException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		try {
 			String sql = "SELECT * FROM Company_Coupon WHERE company_Id = ? AND coupon_Id = ? ";
 			PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -460,12 +397,7 @@ public class Company_CouponDBDAO implements Company_CouponDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed"+e.getMessage());
 			}
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 	}
 

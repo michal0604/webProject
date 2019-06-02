@@ -1,7 +1,7 @@
 package com.johnbryce.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,8 +17,6 @@ import com.johnbryce.beans.Company;
 import com.johnbryce.beans.Customer;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.facad.AdminFacad;
-
-
 
 @Path("admin")
 public class AdminService {
@@ -42,22 +40,14 @@ public class AdminService {
 	public String createCompany(@QueryParam("name") String compName, @QueryParam("pass") String password,
 			@QueryParam("email") String email) {
 
-		System.out.println(compName+" "+password +" "+email);
 		AdminFacad admin = getFacade();
-		String failMsg = "FAILED TO ADD A NEW COMPANY: " + "There is already a company with the same name: " + compName
-				+ " - please change the company name"; // debug
-
 		Company company = new Company(compName, password, email);
-
 		try {
-			if (admin.createCompany(company) != null) {
-				return "SUCCEED TO ADD A NEW COMPANY: name = " + compName + ", id = " + company.getCompanyId();
-			}
-		} catch (DbdaoException | FacadeException e) {
-			e.printStackTrace();
+			admin.createCompany(company);
+			return "Succeded to add a new company: name = " + compName;
+		} catch (CouponException e) {
+			return "Failed to Add a new Company:" + e.getMessage();
 		}
-
-		return failMsg;
 
 	}
 
@@ -67,23 +57,19 @@ public class AdminService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String removeCompany(@QueryParam("compId") long id) {
 
-		String failMsg = "FAILED TO REMOVE A COMPANY: there is no such id! " + id
-				+ " - please enter another company id";
-
 		AdminFacad admin = getFacade();
-		Company company = null;
 		try {
-			company = admin.getCompany(id);
+			Company company = admin.getCompany(id);
 			if (company != null) {
 				admin.removeCompany(company);
-				return "SUCCEED TO REMOVE A COMPANY: name = " + company.getCompName() + ", id = " + id;
+				return "Succeded to remove a company: name = " + company.getCompName() + ", id = " + id;
+			} else {
+				return "Failed to remove a company: the provided company id is invalid";
 			}
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (CouponException e) {
+			return "Failed to remove a company: " + e.getMessage();
 		}
 
-		return failMsg;
 	}
 
 	// UPDATE a company
@@ -94,20 +80,18 @@ public class AdminService {
 			@QueryParam("email") String email) {
 
 		AdminFacad admin = getFacade();
-
 		try {
 			Company company = admin.getCompany(id);
-
 			if (company != null) {
 				admin.updateCompany(company, password, email);
-				return "SUCCEED TO UPDATE A COMPANY: pass = " + company.getPassword() + ",e-mail = "
+				return "Succeded to update a company: pass = " + company.getPassword() + ",e-mail = "
 						+ company.getEmail() + ", id = " + id;
+			} else {
+				return "Failed to update a company: the provided company id is invalid";
 			}
-		} catch (DbdaoException e) {
-			e.printStackTrace();
+		} catch (CouponException e) {
+			return "Failed to update a company: " + e.getMessage();
 		}
-
-		return "FAILED TO UPDATE A COMPANY: there is no such id! " + id + " - please enter another company id";
 
 	}
 
@@ -115,76 +99,50 @@ public class AdminService {
 	@Path("getAllCompanies")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getAllCompanies() {
-
-		// Getting the session and the logged in facade object
 		AdminFacad admin = getFacade();
-
-		// Get the List of all the Companies from the Table in the DataBase
-
+		Set<Company> companies;
 		try {
-			Collection<Company> companies = admin.getAllCompanies();
-			//TODO Collection<CompanyInfo> companiesInfo = new ArrayList<>();
-
-			if (!companies.isEmpty()) {
-				for (Company company : companies) {
-					//TODO CompanyInfo comapnyInfo = new CompanyInfo(company);
-					//TODO companiesInfo.add(comapnyInfo);
-				}
-			}
-
-			return new Gson().toJson(companies);
-
+			companies = admin.getAllCompanies();
 		} catch (CouponException e) {
-			e.printStackTrace();
+			System.err.println("Get all Companies failed: " + e.getMessage());
+			companies = new HashSet<Company>();
 		}
-
-		System.out.println("AdminService: FAILED GET ALL COMOPANIES: there are no companies in the DB table!"); // for
-		return null;
+		return new Gson().toJson(companies);
 	}
 
 	@GET
 	@Path("getCompany")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getCompany(@QueryParam("compId") long id) {
-
 		AdminFacad admin = getFacade();
-
 		try {
 			Company company = admin.getCompany(id);
 			if (company != null) {
-				return new Gson().toJson(company);				
+				return new Gson().toJson(company);
+			} else {
+				return null;
 			}
-		} catch (DbdaoException e) {
-			e.printStackTrace();
+		} catch (CouponException e) {
+			System.err.println("get company by id failed " + e.getMessage());
+			return null;
 		}
-
-		System.err
-				.println("FAILED GET COMPANY BY ID: there is no such id!" + id + " - please enter another company id"); // for
-
-		return null;
 	}
 
-	// CREATE a new Customer - add a customer to the Customer Table in DB
 	@GET
 	@Path("createCustomer")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String Customer(@QueryParam("name") String custName, @QueryParam("pass") String password) {
 
 		AdminFacad admin = getFacade();
-
-		Customer customer = new Customer(0,custName, password);
-		
-
-			if (admin.createCustomer(customer) != null) {
-				return "SUCCEED TO ADD A NEW CUSTOMER: name = " + custName + ", id = " + customer.getCustomerId();
-			}
-		
-		return "FAILED TO ADD A NEW CUSTOMER: " + "There is already a customer	 with the same name: " + custName
-				+ " - please change the customer name";
-
+		Customer customer = new Customer(custName, password);
+		try {
+			admin.createCustomer(customer);
+			return "Succeded to add a new customer: name = " + custName;
+		} catch (CouponException e) {
+			return "Failed to Add a new customer:" + e.getMessage();
+		}
 	}
 
-	// REMOVE Customer
 	@GET
 	@Path("removeCustomer")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -196,14 +154,14 @@ public class AdminService {
 			Customer customer = admin.getCustomer(id);
 			if (customer != null) {
 				admin.removeCustomer(customer);
-				return "SUCCEED TO REMOVE A CUSTOMER: name = " + customer.getCustomerName() + ", id = " + id;
+				return "Succeded to remove a customer: name = " + customer.getCustomerName();
+			} else {
+				return "Failed to remove a customer: the provided customer id is invalid";
 			}
-
 		} catch (CouponException e) {
-			e.printStackTrace();
+			return "Failed to remove a customer: " + e.getMessage();
 		}
 
-		return "FAILED TO REMOVE A CUSTOMER: there is no such id! " + id + " - please enter another customer id";
 	}
 
 	// UPDATE a customer
@@ -211,75 +169,51 @@ public class AdminService {
 	@Path("updateCustomer")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String updateCustomer(@QueryParam("custId") long id, @QueryParam("pass") String password) {
-
 		AdminFacad admin = getFacade();
-
-		Customer customer;
 		try {
-			customer = admin.getCustomer(id);
+			Customer customer = admin.getCustomer(id);
 			if (customer != null) {
 				admin.updateCustomer(customer, password);
-				return "SUCCEED TO UPDATE A CUSTOMER: pass = " + customer.getPassword() + ", id = " + id;
+				return "Succeded to update a customer:: pass = " + customer.getPassword();
+			} else {
+				return "Failed to update a customer: the provided customer id is invalid";
 			}
-		} catch (DbdaoException e) {
-			e.printStackTrace();
+		} catch (CouponException e) {
+			return "Failed to update a customer: " + e.getMessage();
 		}
-
-		return "FAILED TO UPDATE A CUSTOMER: there is no such id! " + id + " - please enter another customer id";
 	}
 
 	@GET
 	@Path("getAllCustomers")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getAllCustomers() {
-
 		AdminFacad admin = getFacade();
-
-		// Provide a List of all the Customers from the Table in the DataBase
-
+		Set<Customer> customers;
 		try {
-			Collection<Customer> customers = admin.getAllCustomers();
-			// TODO  Collection<CustomerInfo> customersInfo = new ArrayList<>();
-
-			if (!customers.isEmpty()) {
-				for (Customer customer : customers) {
-					System.out.println(customer.getCustomerName() + ", id = " + customer.getCustomerId()); // for
-					//TODO CustomerInfo webCustomer = new CustomerInfo(customer);
-					//TODO customersInfo.add(webCustomer);
-				}
-				return new Gson().toJson(customers);
-			}
-
+			customers = admin.getAllCustomers();
 		} catch (CouponException e) {
-			e.printStackTrace();
+			System.err.println("Get all customers failed: " + e.getMessage());
+			customers = new HashSet<Customer>();
 		}
-
-		System.out.println("AdminService: FAILED GET ALL CUSTOMERS: there are no customers in the DB table!");
-		return null;
+		return new Gson().toJson(customers);
 	}
 
 	@GET
 	@Path("getCustomer")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getCustomer(@QueryParam("custId") long id) {
-
-		// Getting the session and the logged in facade object
 		AdminFacad admin = getFacade();
-
 		try {
 			Customer customer = admin.getCustomer(id);
 			if (customer != null) {
-				System.out.println(customer.getCustomerName() + ", id = " + customer.getCustomerId()); // for
 				return new Gson().toJson(customer);
+			} else {
+				return null;
 			}
 		} catch (CouponException e) {
-			e.printStackTrace();
+			System.err.println("get customer by id failed " + e.getMessage());
+			return null;
 		}
-
-		System.out.println(
-				"FAILED GET CUSTOMER BY ID: there is no such id!" + id + " - please enter another customer id");
-
-		return null;
 	}
 
 }

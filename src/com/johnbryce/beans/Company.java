@@ -29,11 +29,16 @@ public class Company {
 	 */
 	
 	public Company(long companyId, String compName, String password, String email) {
+		this(compName, password, email);
 		setCompanyId(companyId);
+		
+		
+	}
+
+	public Company(String compName, String password, String email) {
 		setCompName(compName);
 		setPassword(password);
 		setEmail(email);
-		
 	}
 
 	/**

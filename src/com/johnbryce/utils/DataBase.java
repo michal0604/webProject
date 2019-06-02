@@ -10,8 +10,6 @@ import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.RemoveException;
 
 
-
-
 /**
  * @author Eivy & Michal
  * 
@@ -135,7 +133,7 @@ public class DataBase {
 		}
 		
 		// create Company table
-		 sql = "create table Company (" + "ID bigint not null primary key, " + "COMP_NAME varchar(50) not null, "
+		 sql = "create table Company (" + "ID bigint not null primary key enerated always as identity(start with 1, increment by 1), " + "COMP_NAME varchar(50) not null, "
 				+ "PASSWORD varchar(50) not null, " + "EMAIL varchar(50) not null)";
 		
 		try {
@@ -145,7 +143,7 @@ public class DataBase {
 		} catch (SQLException e) {
 			throw new CreateException("create company didn't succeed");
 		}
-		sql = "create table Customer (" + "ID bigint not null primary key, " + "CUST_NAME varchar(50) not null, "
+		sql = "create table Customer (" + "ID bigint not null primary keyenerated always as identity(start with 1, increment by 1), " + "CUST_NAME varchar(50) not null, "
 				+ "PASSWORD varchar(50) not null)";
 		try {
 			PreparedStatement pstmt = connection.prepareStatement(sql);	 
@@ -155,7 +153,7 @@ public class DataBase {
 			throw new CreateException("create customer didn't succeed");
 		}
 
-			 sql = "create table Coupon (" + "ID bigint not null primary key, " + "TITLE varchar(50) not null, "
+			 sql = "create table Coupon (" + "ID bigint not null primary key enerated always as identity(start with 1, increment by 1), " + "TITLE varchar(50) not null, "
 					+ "START_DATE date not null, " + "END_DATE date not null, " + "AMOUNT integer not null, "
 					+ "TYPE varchar(50) not null, " + "MESSAGE varchar(50) not null, " + " PRICE float not null, "
 					+ "IMAGE varchar(200) not null)";

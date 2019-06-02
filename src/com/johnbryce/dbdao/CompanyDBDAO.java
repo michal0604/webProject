@@ -19,7 +19,7 @@ import com.johnbryce.utils.ConnectionPool;
  * this class implement the DB operations associated with the Company's data
  * access requirements.
  * 
- * @author Eivy & Michal
+ * @author Michal & Eivy
  *
  */
 
@@ -36,7 +36,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	public CompanyDBDAO() throws CouponException {
 		try {
 			pool = ConnectionPool.getInstance();
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			throw new CouponException("connection failed");
 		}
 	}
@@ -50,42 +50,25 @@ public class CompanyDBDAO implements CompanyDAO {
 	 *             for DB related failures
 	 * 
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#insertCompany
+	 * @see projectCoupon.dao.CompanyDAO#insertCompany
 	 */
 	@Override
 	public void insertCompany(Company Company) throws CouponException, SQLException {
-		try {
-			pool = ConnectionPool.getInstance();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String sql = "insert into Company(ID, COMP_NAME, PASSWORD, EMAIL) values (?,?,?,?)";
+		pool = ConnectionPool.getInstance();
+		Connection connection = pool.getConnection();
+		String sql = "insert into Company(COMP_NAME, PASSWORD, EMAIL) values (?,?,?)";
 
 		try {
 			PreparedStatement pstmt = connection.prepareStatement(sql);
-			pstmt.setLong(1, Company.getCompanyId());
-			pstmt.setString(2, Company.getCompName());
-			pstmt.setString(3, Company.getPassword());
-			pstmt.setString(4, Company.getEmail());
+			pstmt.setString(1, Company.getCompName());
+			pstmt.setString(2, Company.getPassword());
+			pstmt.setString(3, Company.getEmail());
 			pstmt.executeUpdate();
 		} catch (SQLException ex) {
 			throw new CouponException("Company creation failed " + ex.getMessage());
 		} finally {
 			connection.close();
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 	}
 
@@ -100,17 +83,11 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws SQLException
 	 *             SQLException for DB related failures
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#removeCompany
+	 * @see projectCoupon.dao.CompanyDAO#removeCompany
 	 */
 	@Override
 	public void removeCompany(Company Company) throws CouponException, SQLException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		String sql = "delete from Company where ID = ?";
 		try {
 			PreparedStatement pstm1 = connection.prepareStatement(sql);
@@ -123,12 +100,7 @@ public class CompanyDBDAO implements CompanyDAO {
 			throw new SQLException("failed to remove Company " + e.getMessage());
 		} finally {
 			connection.close();
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 	}
 
@@ -138,7 +110,6 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @param company
 	 *            company to update
 	 * @throws CompanyException
-	 * @throws Exception.CouponException 
 	 * @throws CouponException
 	 *             regarding the connection problem
 	 * @throws CompanyUpdateException
@@ -146,24 +117,21 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws SQLException
 	 *             for DB related failures
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#updateCompany
+	 * @see projectCoupon.dao.CompanyDAO#updateCompany
 	 */
 	@Override
-	public void updateCompany(Company Company) throws CompanyException{
+	public void updateCompany(Company Company) throws CompanyException {
 		try {
-			try {
-				pool = ConnectionPool.getInstance();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			pool = ConnectionPool.getInstance();
+		} catch (CouponException e) {
+			throw new CompanyException("connection failed " + e.getMessage());
+		} catch (SQLException e) {
 			throw new CompanyException("connection failed " + e.getMessage());
 		}
 		Connection connection;
 		try {
 			connection = pool.getConnection();
-		} catch (Exception e) {
+		} catch (CouponException e) {
 			throw new CompanyException("connection failed " + e.getMessage());
 		}
 		try {
@@ -183,13 +151,8 @@ public class CompanyDBDAO implements CompanyDAO {
 				throw new CompanyException("connection close failed " + e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new CompanyException("return connection failed " + e.getMessage());
 			}
 		}
@@ -206,24 +169,13 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws SQLException
 	 *             for DB related failures
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#getCompany
+	 * @see projectCoupon.dao.CompanyDAO#getCompany
 	 */
 	
 	@Override
 	public Company getCompany(long companyId) throws CouponException, SQLException {
-		try {
-			pool = ConnectionPool.getInstance();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		pool = ConnectionPool.getInstance();
+		Connection connection = pool.getConnection();
 		Company company = null;
 
 			String sql = "SELECT * FROM Company WHERE ID=" + companyId;
@@ -241,12 +193,7 @@ public class CompanyDBDAO implements CompanyDAO {
 			throw new CouponException("unable to get Company data " + e.getMessage());
 		} finally {
 			connection.close();
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 		return company;
 	}
@@ -261,18 +208,12 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws ConnectionException
 	 *             error occurring due to connection problems
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#getAllCompanys
+	 * @see projectCoupon.dao.CompanyDAO#getAllCompanys
 	 */
 	
 	@Override
 	public Set<Company> getAllCompanys() throws CouponException, SQLException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		Set<Company> set = new HashSet<Company>();
 		String sql = "SELECT * FROM Company";
 		try {
@@ -283,18 +224,13 @@ public class CompanyDBDAO implements CompanyDAO {
 				String compName = rs.getString(2);
 				String password = rs.getString(3);
 				String email = rs.getString(4);
-				set.add(new Company(id, compName, password, email));
+				set.add(new Company(id,compName, password, email));
 			}
 		} catch (SQLException e) {
 			throw new CouponException("cannot get Company data " + e.getMessage());
 		} finally {
 			connection.close();
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 		return set;
 	}
@@ -314,17 +250,11 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws ConnectionException
 	 *             error occurring due to connection problems
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#login(java.lang.String, java.lang.String)
+	 * @see projectCoupon.dao.CompanyDAO#login(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public Company login(String compName, String password) throws CouponException, SQLException, CompanyException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		Company company =null;
 		try {
 			String sql = "SELECT * FROM Company WHERE COMP_NAME = ? ";
@@ -351,13 +281,8 @@ public class CompanyDBDAO implements CompanyDAO {
 				throw new CompanyException("connection close failed"+e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new CompanyException("return connection failed"+e.getMessage());
 			}
 		}
@@ -375,18 +300,12 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws ConnectionException
 	 *             error occurring due to connection problems
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#getAllCompanys
+	 * @see projectCoupon.dao.CompanyDAO#getAllCompanys
 	 */
 
 	@Override
 	public boolean isCompanyNameExists(String compName) throws CouponException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		try {
 			String sql = "SELECT ID FROM Company WHERE COMP_NAME = ? ";
 			PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -407,12 +326,7 @@ public class CompanyDBDAO implements CompanyDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed"+e.getMessage());
 			}
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 
 	}
@@ -425,13 +339,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	
 	@Override
 	public Set<Coupon> getAllCoupons(long companyId) throws CouponException, CompanyException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		Set<Coupon> coupons = new HashSet<Coupon>();
 		CouponDBDAO couponDB = new CouponDBDAO();
 		try  {
@@ -456,12 +364,7 @@ public class CompanyDBDAO implements CompanyDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed"+e.getMessage());
 			}
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 		return coupons;
 		

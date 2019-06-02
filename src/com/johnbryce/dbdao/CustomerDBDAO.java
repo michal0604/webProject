@@ -34,13 +34,8 @@ public class CustomerDBDAO implements CustomerDAO {
 	 */
 	public CustomerDBDAO() throws CouponException {
 		try {
-			try {
-				pool = ConnectionPool.getInstance();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			pool = ConnectionPool.getInstance();
+		} catch (SQLException e) {
 			throw new CouponException("connection failed");
 		}
 	}
@@ -56,22 +51,16 @@ public class CustomerDBDAO implements CustomerDAO {
 	public void insertCustomer(Customer Customer) throws CreateException {
 		Connection connection = null;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new CreateException("connection failed " + e.getMessage());
 		}
-		String sql = "insert into Customer(ID, CUST_NAME, PASSWORD) values (?,?,?)";
+		String sql = "insert into Customer(CUST_NAME, PASSWORD) values (?,?)";
 
 		try {
 			PreparedStatement pstmt = connection.prepareStatement(sql);
-			pstmt.setLong(1, Customer.getCustomerId());
-			pstmt.setString(2, Customer.getCustomerName());
-			pstmt.setString(3, Customer.getPassword());
+			pstmt.setString(1, Customer.getCustomerName());
+			pstmt.setString(2, Customer.getPassword());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new CreateException("Customer creation failed " + e.getMessage());
@@ -82,13 +71,8 @@ public class CustomerDBDAO implements CustomerDAO {
 				throw new CreateException("connection close failed " + e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new CreateException("return connection failed " + e.getMessage());
 			}
 		}
@@ -106,13 +90,8 @@ public class CustomerDBDAO implements CustomerDAO {
 	public void removeCustomer(Customer customer) throws RemoveException {
 		Connection connection = null;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new RemoveException("connection failed " + e.getMessage());
 		}
 		String sql = "DELETE FROM Customer WHERE ID=?";
@@ -137,13 +116,8 @@ public class CustomerDBDAO implements CustomerDAO {
 				throw new RemoveException("connection close failed " + e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new RemoveException("return connection failed " + e.getMessage());
 			}
 
@@ -159,15 +133,10 @@ public class CustomerDBDAO implements CustomerDAO {
 	 */
 	@Override
 	public void updateCustomer(Customer Customer) throws UpdateException {
-		Connection connection = null;
+		Connection connection;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new UpdateException("connection failed " + e.getMessage());
 		}
 		
@@ -201,15 +170,10 @@ public class CustomerDBDAO implements CustomerDAO {
 	 */
 	@Override
 	public Customer getCustomer(String customerName) throws CustomerException {
-		Connection connection = null;
+		Connection connection;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new CustomerException("connection failed " + e.getMessage());
 		}
 		Customer customer = null;
@@ -235,13 +199,8 @@ public class CustomerDBDAO implements CustomerDAO {
 				throw new CustomerException("connection close failed " + e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new CustomerException("return connection failed " + e.getMessage());
 			}
 
@@ -257,15 +216,10 @@ public class CustomerDBDAO implements CustomerDAO {
 	 */
 	@Override
 	public Set<Customer> getAllCustomers() throws CustomerException {
-		Connection connection = null;
+		Connection connection;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new CustomerException("connection failed " + e.getMessage());
 		}
 
@@ -311,27 +265,17 @@ public class CustomerDBDAO implements CustomerDAO {
 	public Customer getCustomer(long CustomerId) throws CustomerException {
 		try {
 			try {
-				try {
-					pool = ConnectionPool.getInstance();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool = ConnectionPool.getInstance();
+			} catch (SQLException e) {
 				throw new CouponException("connection failed");
 			}
 		} catch (CouponException e) {
 			throw new CustomerException("connection failed " + e.getMessage());
 		}
-		Connection connection = null;
+		Connection connection;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new CustomerException("connection failed " + e.getMessage());
 		}
 		Customer customer = new Customer();
@@ -357,13 +301,8 @@ public class CustomerDBDAO implements CustomerDAO {
 				throw new CustomerException("connection close failed " + e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new CustomerException("return connection failed " + e.getMessage());
 			}
 		}
@@ -382,15 +321,10 @@ public class CustomerDBDAO implements CustomerDAO {
 	 */
 	@Override
 	public Customer login(String customerName, String password) throws CustomerException {
-		Connection connection = null;
+		Connection connection;
 		try {
-			try {
-				connection = pool.getConnection();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception e) {
+			connection = pool.getConnection();
+		} catch (CouponException e) {
 			throw new CustomerException("connection failed " + e.getMessage());
 		}
 		Customer customer = null;
@@ -423,13 +357,8 @@ public class CustomerDBDAO implements CustomerDAO {
 				throw new CustomerException("connection close failed " + e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new CustomerException("return connection failed " + e.getMessage());
 			}
 		}
@@ -446,13 +375,7 @@ public class CustomerDBDAO implements CustomerDAO {
 	 */
 	@Override
 	public boolean isCustomerNameExists(String customerName) throws CouponException, CustomerException {
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		try {
 			String sql = "SELECT ID FROM Customer WHERE CUST_NAME = ? ";
 			PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -471,13 +394,8 @@ public class CustomerDBDAO implements CustomerDAO {
 				throw new CustomerException("connection close failed " + e.getMessage());
 			}
 			try {
-				try {
-					pool.returnConnection(connection);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (Exception e) {
+				pool.returnConnection(connection);
+			} catch (CouponException e) {
 				throw new CustomerException("return connection failed " + e.getMessage());
 			}
 		}
@@ -489,13 +407,7 @@ public class CustomerDBDAO implements CustomerDAO {
 	 */
 	@Override
 	public Set<Coupon> getAllCoupons(long customerId) throws CouponException{
-		Connection connection = null;
-		try {
-			connection = pool.getConnection();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		Connection connection = pool.getConnection();
 		Set<Coupon> coupons = new HashSet<Coupon>();
 		CouponDBDAO couponDB = new CouponDBDAO();
 		try  {
@@ -520,12 +432,7 @@ public class CustomerDBDAO implements CustomerDAO {
 			} catch (SQLException e) {
 				throw new CouponException("connection close failed"+e.getMessage());
 			}
-			try {
-				pool.returnConnection(connection);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			pool.returnConnection(connection);
 		}
 		return coupons;
 		
