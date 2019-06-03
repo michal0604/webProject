@@ -58,18 +58,17 @@ public class CouponDBDAO implements CouponDAO {
 		} catch (CouponException e) {
 			throw new CreateException("didnt success to connect " + e.getMessage());
 		}
-		String sql = "INSERT INTO Coupon (ID,title,start_date,end_date,amount,type,message,price,image) VALUES(?,?,?,?,?,?,?,?,?)";
+		String sql = "INSERT INTO Coupon (title,start_date,end_date,amount,type,message,price,image) VALUES(?,?,?,?,?,?,?,?)";
 		try {
 			PreparedStatement pstmt = connection.prepareStatement(sql);
-			pstmt.setLong(1, coupon.getCouponId());
-			pstmt.setString(2, coupon.getTitle());
-			pstmt.setDate(3, (Date) coupon.getStart_date());
-			pstmt.setDate(4, (Date) coupon.getEnd_date());
-			pstmt.setInt(5, coupon.getAmount());
-			pstmt.setString(6, coupon.getType().name());
-			pstmt.setString(7, coupon.getMessage());
-			pstmt.setDouble(8, coupon.getPrice());
-			pstmt.setString(9, coupon.getImage());
+			pstmt.setString(1, coupon.getTitle());
+			pstmt.setDate(2, (Date) coupon.getStart_date());
+			pstmt.setDate(3, (Date) coupon.getEnd_date());
+			pstmt.setInt(4, coupon.getAmount());
+			pstmt.setString(5, coupon.getType().name());
+			pstmt.setString(6, coupon.getMessage());
+			pstmt.setDouble(7, coupon.getPrice());
+			pstmt.setString(8, coupon.getImage());
 			pstmt.executeUpdate();
 
 		} catch (SQLException ex) {

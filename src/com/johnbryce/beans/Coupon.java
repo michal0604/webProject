@@ -50,6 +50,18 @@ public class Coupon {
 		setImage(image);
 	}
 
+	public Coupon(String title, Date start_date, Date end_date, int amount, CouponType type,String message,
+			Double price, String image) {
+		setTitle(title);
+		setStart_date(start_date);
+		setEnd_date(end_date);
+		setAmount(amount);
+		setType(type);
+		setMessage(message);
+		setPrice(price);
+		setImage(image);
+	}
+
 	/**
 	 * @return the coupon id
 	 */

@@ -28,12 +28,11 @@ public class AdminService {
 
 	private AdminFacad getFacade() {
 
-		AdminFacad admin = null;
-		admin = (AdminFacad) request.getSession(false).getAttribute("facade");
+		AdminFacad admin = (AdminFacad) request.getSession(false).getAttribute("facade");
 		return admin;
 	}
 
-	// Create a new company in the db
+	
 	@GET
 	@Path("createCompany")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -51,7 +50,6 @@ public class AdminService {
 
 	}
 
-	// REMOVE a Company
 	@GET
 	@Path("removeCompany")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -72,7 +70,6 @@ public class AdminService {
 
 	}
 
-	// UPDATE a company
 	@GET
 	@Path("updateCompany")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -164,7 +161,6 @@ public class AdminService {
 
 	}
 
-	// UPDATE a customer
 	@GET
 	@Path("updateCustomer")
 	@Produces(MediaType.TEXT_PLAIN)
