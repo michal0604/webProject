@@ -27,7 +27,6 @@ public class AdminService {
 	private HttpServletResponse response;
 
 	private AdminFacad getFacade() {
-
 		AdminFacad admin = (AdminFacad) request.getSession(false).getAttribute("facade");
 		return admin;
 	}
@@ -35,15 +34,15 @@ public class AdminService {
 	
 	@GET
 	@Path("createCompany")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String createCompany(@QueryParam("name") String compName, @QueryParam("pass") String password,
 			@QueryParam("email") String email) {
 
 		AdminFacad admin = getFacade();
 		Company company = new Company(compName, password, email);
 		try {
-			admin.createCompany(company);
-			return "Succeded to add a new company: name = " + compName;
+			company = admin.createCompany(company);
+			return new Gson().toJson(company);
 		} catch (CouponException e) {
 			return "Failed to Add a new Company:" + e.getMessage();
 		}
@@ -72,7 +71,7 @@ public class AdminService {
 
 	@GET
 	@Path("updateCompany")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String updateCompany(@QueryParam("compId") long id, @QueryParam("pass") String password,
 			@QueryParam("email") String email) {
 
@@ -80,9 +79,8 @@ public class AdminService {
 		try {
 			Company company = admin.getCompany(id);
 			if (company != null) {
-				admin.updateCompany(company, password, email);
-				return "Succeded to update a company: pass = " + company.getPassword() + ",e-mail = "
-						+ company.getEmail() + ", id = " + id;
+				company =  admin.updateCompany(company, password, email);
+				return new Gson().toJson(company);
 			} else {
 				return "Failed to update a company: the provided company id is invalid";
 			}
@@ -94,7 +92,7 @@ public class AdminService {
 
 	@GET
 	@Path("getAllCompanies")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getAllCompanies() {
 		AdminFacad admin = getFacade();
 		Set<Company> companies;
@@ -109,7 +107,7 @@ public class AdminService {
 
 	@GET
 	@Path("getCompany")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getCompany(@QueryParam("compId") long id) {
 		AdminFacad admin = getFacade();
 		try {
@@ -127,14 +125,14 @@ public class AdminService {
 
 	@GET
 	@Path("createCustomer")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String Customer(@QueryParam("name") String custName, @QueryParam("pass") String password) {
 
 		AdminFacad admin = getFacade();
 		Customer customer = new Customer(custName, password);
 		try {
-			admin.createCustomer(customer);
-			return "Succeded to add a new customer: name = " + custName;
+			customer = admin.createCustomer(customer);
+			return new Gson().toJson(customer);
 		} catch (CouponException e) {
 			return "Failed to Add a new customer:" + e.getMessage();
 		}
@@ -163,14 +161,14 @@ public class AdminService {
 
 	@GET
 	@Path("updateCustomer")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String updateCustomer(@QueryParam("custId") long id, @QueryParam("pass") String password) {
 		AdminFacad admin = getFacade();
 		try {
 			Customer customer = admin.getCustomer(id);
 			if (customer != null) {
-				admin.updateCustomer(customer, password);
-				return "Succeded to update a customer:: pass = " + customer.getPassword();
+				customer = admin.updateCustomer(customer, password);
+				return new Gson().toJson(customer);
 			} else {
 				return "Failed to update a customer: the provided customer id is invalid";
 			}
@@ -196,7 +194,7 @@ public class AdminService {
 
 	@GET
 	@Path("getCustomer")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getCustomer(@QueryParam("custId") long id) {
 		AdminFacad admin = getFacade();
 		try {

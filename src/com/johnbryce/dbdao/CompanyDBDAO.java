@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,17 +54,24 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @see projectCoupon.dao.CompanyDAO#insertCompany
 	 */
 	@Override
-	public void insertCompany(Company Company) throws CouponException, SQLException {
+	public long insertCompany(Company Company) throws CouponException, SQLException {
 		pool = ConnectionPool.getInstance();
 		Connection connection = pool.getConnection();
 		String sql = "insert into Company(COMP_NAME, PASSWORD, EMAIL) values (?,?,?)";
 
 		try {
-			PreparedStatement pstmt = connection.prepareStatement(sql);
+			PreparedStatement pstmt = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, Company.getCompName());
 			pstmt.setString(2, Company.getPassword());
 			pstmt.setString(3, Company.getEmail());
 			pstmt.executeUpdate();
+					 
+			ResultSet rs = pstmt.getGeneratedKeys();
+			long generatedKey = 0;
+			if (rs.next()) {
+			    generatedKey = rs.getLong(1);
+			}
+			return generatedKey;
 		} catch (SQLException ex) {
 			throw new CouponException("Company creation failed " + ex.getMessage());
 		} finally {
@@ -120,7 +128,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @see projectCoupon.dao.CompanyDAO#updateCompany
 	 */
 	@Override
-	public void updateCompany(Company Company) throws CompanyException {
+	public long updateCompany(Company Company) throws CompanyException {
 		try {
 			pool = ConnectionPool.getInstance();
 		} catch (CouponException e) {
@@ -136,12 +144,18 @@ public class CompanyDBDAO implements CompanyDAO {
 		}
 		try {
 			String sql = "update Company set COMP_NAME= ?,PASSWORD = ?, EMAIL= ? where ID = ?";
-			PreparedStatement stm1 = connection.prepareStatement(sql);
+			PreparedStatement stm1 = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 			stm1.setString(1, Company.getCompName());
 			stm1.setString(2, Company.getPassword());
 			stm1.setString(3, Company.getEmail());
 			stm1.setLong(4, Company.getCompanyId());
 			stm1.executeUpdate();
+			ResultSet rs = stm1.getGeneratedKeys();
+			long generatedKey = 0;
+			if (rs.next()) {
+			    generatedKey = rs.getLong(1);
+			}
+			return generatedKey;
 		} catch (SQLException e) {
 			throw new CompanyException("update company failed " + e.getMessage());
 		} finally {

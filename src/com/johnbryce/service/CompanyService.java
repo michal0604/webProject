@@ -38,19 +38,13 @@ public class CompanyService {
 
 	@POST
 	@Path("createCoupon")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String createCompany(@QueryParam("title") String title, @QueryParam("start_date") long start_date,
-			@QueryParam("end_date") long end_date, @QueryParam("amount") int amount,
-			@QueryParam("type") CouponType type, @QueryParam("message") String message,
-			@QueryParam("price") double price, @QueryParam("image") String image) {
-
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String createCoupon(Coupon coupon) {
 		CompanyFacade companyFacade = getFacade();
-
-		Coupon coupon = new Coupon(title, new Date(start_date), new Date(end_date), amount, type, message, price,
-				image);
 		try {
-			companyFacade.createCoupon(coupon);
-			return "Succeded to add a new coupon: Title = " + title;
+			coupon = companyFacade.createCoupon(coupon);
+			return new Gson().toJson(coupon);
 		} catch (Exception e) {
 			return "Failed to Add a new coupon:" + e.getMessage();
 		}
@@ -74,27 +68,24 @@ public class CompanyService {
 
 	@POST
 	@Path("updateCoupon")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String updateCoupon(@QueryParam("couponId") long id, @QueryParam("title") String title,
-			@QueryParam("start_date") long start_date, @QueryParam("end_date") long end_date,
-			@QueryParam("amount") int amount, @QueryParam("type") CouponType type,
-			@QueryParam("message") String message, @QueryParam("price") double price,
-			@QueryParam("image") String image) {
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String updateCoupon(Coupon coupon) {
 
 		CompanyFacade companyFacade = getFacade();
 		try {
-			Coupon coupon = companyFacade.getCoupon(id);
 			if (coupon != null) {
-				coupon.setTitle(title);
-				coupon.setStart_date(new Date(start_date));
-				coupon.setEnd_date(new Date(end_date));
-				coupon.setAmount(amount);
-				coupon.setType(type);
-				coupon.setMessage(message);
-				coupon.setPrice(price);
-				coupon.setImage(image);
-				companyFacade.updateCoupon(coupon);
-				return "Succeded to update a company: title = " + coupon.getTitle();
+				Coupon oldCoupon = companyFacade.getCoupon(coupon.getCouponId());
+				oldCoupon.setTitle(coupon.getTitle());
+				oldCoupon.setStart_date(coupon.getStart_date());
+				oldCoupon.setEnd_date(coupon.getEnd_date());
+				oldCoupon.setAmount(coupon.getAmount());
+				oldCoupon.setType(coupon.getType());
+				oldCoupon.setMessage(coupon.getMessage());
+				oldCoupon.setPrice(coupon.getPrice());
+				oldCoupon.setImage(coupon.getImage());
+				oldCoupon = companyFacade.updateCoupon(oldCoupon);
+				return new Gson().toJson(coupon);
 			} else {
 				return "Failed to update a company: the provided company id is invalid";
 			}
@@ -106,7 +97,7 @@ public class CompanyService {
 
 	@GET
 	@Path("getCompany")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getCompany() {
 		CompanyFacade companyFacade = getFacade();
 		Company company;
@@ -122,7 +113,7 @@ public class CompanyService {
 
 	@GET
 	@Path("getCoupon")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getCoupon(@PathParam("compId") long id) {
 		CompanyFacade companyFacade = getFacade();
 		try {
@@ -140,7 +131,7 @@ public class CompanyService {
 
 	@GET
 	@Path("getCoupons")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getCoupons() {
 		CompanyFacade companyFacade = getFacade();
 		Set<Coupon> coupons;
@@ -154,9 +145,9 @@ public class CompanyService {
 	}
 	
 	@GET
-	@Consumes(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/getAllCouponsByType")
-	public Set<Coupon> getAllCouponsByType(@PathParam("type")CouponType type) {
+	public String getAllCouponsByType(@PathParam("type")CouponType type) {
 		CompanyFacade companyFacade = getFacade();
 		Set<Coupon>  allCouponsByType=new HashSet<>();
 		try {
@@ -165,13 +156,13 @@ public class CompanyService {
 			System.err.println("Get Coupons by type failed: " + e.getMessage());
 			allCouponsByType = new HashSet<Coupon>();
 		}
-		return allCouponsByType;
+		return new Gson().toJson(allCouponsByType);
 	}
 	
 	@GET
-	@Consumes(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/getCouponsByMaxCouponPrice")
-	public Set<Coupon> getCouponsByMaxCouponPrice(@PathParam("price") double price) {
+	public String getCouponsByMaxCouponPrice(@PathParam("price") double price) {
 		CompanyFacade companyFacade = getFacade();
 		Set<Coupon>  allCouponsByType=new HashSet<>();
 		try {
@@ -180,13 +171,13 @@ public class CompanyService {
 			System.err.println("Get Coupons by max price failed: " + e.getMessage());
 			allCouponsByType = new HashSet<Coupon>();
 		}
-		return allCouponsByType;
+		return new Gson().toJson(allCouponsByType);
 	}
 	
 	@GET
-	@Consumes(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/getCouponsByMaxCouponDate")
-	public Set<Coupon> getCouponsByMaxCouponDate(@PathParam("date") Date date) {
+	public String getCouponsByMaxCouponDate(@PathParam("date") Date date) {
 		CompanyFacade companyFacade = getFacade();
 		Set<Coupon>  allCouponsByType=new HashSet<>();
 		try {
@@ -195,7 +186,7 @@ public class CompanyService {
 			System.err.println("Get Coupons by max dare failed: " + e.getMessage());
 			allCouponsByType = new HashSet<Coupon>();
 		}
-		return allCouponsByType;
+		return new Gson().toJson(allCouponsByType);
 	}
 
 

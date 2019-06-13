@@ -68,7 +68,7 @@ public class AdminFacad implements CouponClientFacade {
 	 * @param company
 	 * @throws CouponException
 	 */
-	public void createCompany(Company company) throws CouponException {
+	public Company createCompany(Company company) throws CouponException {
 		if (!isLogedIn) {
 			throw new CouponException("the operation was canceled due to not being loged in");
 		}
@@ -78,8 +78,13 @@ public class AdminFacad implements CouponClientFacade {
 				if (company.getPassword() != null) {
 					try {
 						if (!companyDAO.isCompanyNameExists(compName)) {
-							companyDAO.insertCompany(company);
-
+							long id = companyDAO.insertCompany(company);
+							if(id != 0) {
+								return companyDAO.getCompany(id);
+							}else {
+								throw new CouponException("create company failed by admin");
+							}
+							
 						} else {
 							throw new CouponException("create company failed by admin");
 						}
@@ -89,6 +94,7 @@ public class AdminFacad implements CouponClientFacade {
 				}
 			}
 		}
+		return company;
 	}
 
 	/**
@@ -125,7 +131,7 @@ public class AdminFacad implements CouponClientFacade {
 	 * @param newEmail
 	 * @throws CouponException
 	 */
-	public void updateCompany(Company Company, String newpassword, String newEmail) throws CouponException {
+	public Company updateCompany(Company Company, String newpassword, String newEmail) throws CouponException {
 		if (!isLogedIn) {
 			throw new CouponException("the operation was canceled due to not being loged in");
 		}
@@ -133,8 +139,13 @@ public class AdminFacad implements CouponClientFacade {
 		Company.setPassword(newpassword);
 		Company.setEmail(newEmail);
 		try {
-			companyDAO.updateCompany(Company);
-		} catch (CompanyException e) {
+			long id = companyDAO.updateCompany(Company);
+			if(id != 0) {
+				return companyDAO.getCompany(id);
+			}else {
+				throw new CouponException("create company failed by admin");
+			}
+		} catch (CompanyException | SQLException e) {
 			throw new CouponException("update company by admin failed");
 		}
 
@@ -182,7 +193,7 @@ public class AdminFacad implements CouponClientFacade {
 	 * @param customer
 	 * @throws CouponException
 	 */
-	public void createCustomer(Customer customer) throws CouponException {
+	public Customer createCustomer(Customer customer) throws CouponException {
 		if (!isLogedIn) {
 			throw new CouponException("the operation was canceled due to not being loged in");
 		}
@@ -193,6 +204,13 @@ public class AdminFacad implements CouponClientFacade {
 					try {
 						if (!customerDAO.isCustomerNameExists(custName)) {
 							customerDAO.insertCustomer(customer);
+							long id = customerDAO.insertCustomer(customer);
+							if(id != 0) {
+								return customerDAO.getCustomer(id);
+							}else {
+								throw new CouponException("create customer failed by admin");
+							}
+							
 						}
 					} catch (CustomerException e) {
 						throw new CouponException("create customer by admin failed");
@@ -203,6 +221,7 @@ public class AdminFacad implements CouponClientFacade {
 				}
 			}
 		}
+		return customer;
 	}
 
 	/**
@@ -235,15 +254,19 @@ public class AdminFacad implements CouponClientFacade {
 	 * @param newpassword
 	 * @throws CouponException
 	 */
-	public void updateCustomer(Customer customer, String newpassword) throws CouponException {
+	public Customer updateCustomer(Customer customer, String newpassword) throws CouponException {
 		if (!isLogedIn) {
 			throw new CouponException("the operation was canceled due to not being loged in");
 		}
-
 		customer.setPassword(newpassword);
 		try {
-			customerDAO.updateCustomer(customer);
-		} catch (UpdateException e) {
+			long id = customerDAO.updateCustomer(customer);
+			if(id != 0) {
+				return customerDAO.getCustomer(id);
+			}else {
+				throw new CouponException("\"update customer by admin failed");
+			}
+		} catch (UpdateException | CustomerException e) {
 			throw new CouponException("update customer by admin failed");
 		}
 

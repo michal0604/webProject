@@ -89,7 +89,7 @@ public class CompanyFacade implements CouponClientFacade {
 	 *             errors in creation
 	 * @throws CouponException
 	 */
-	public void createCoupon(Coupon coupon) throws Exception {
+	public Coupon createCoupon(Coupon coupon) throws Exception {
 		if (companyId == 0) {
 			System.out.println("the operation was canceled due to not being loged in");
 		}
@@ -102,8 +102,15 @@ public class CompanyFacade implements CouponClientFacade {
 					if (startDate.getTime() >= Utile.getCurrentDate().getTime()) {
 						if (!couponDAO.isCouponTitleExists(CoupTitle)) {
 							couponDAO.insertCoupon(coupon);
+							long id = couponDAO.insertCoupon(coupon);
+							if(id != 0) {
+								coupon = couponDAO.getCoupon(id);
+							}else {
+								throw new CouponException("create coupon failed by company");
+							}
 							company_CouponDAO.insertCompany_Coupon(companyId, coupon.getCouponId());
 							System.out.println("create coupon by company success!!");
+							return coupon;
 						} else {
 							System.out.println("Coupon Title is Already Exists! Create New Coupon is Canceled!");
 						}
@@ -111,6 +118,7 @@ public class CompanyFacade implements CouponClientFacade {
 				}
 			}
 		}
+		return coupon;
 	}
 
 	/**
@@ -146,7 +154,7 @@ public class CompanyFacade implements CouponClientFacade {
 	 * @throws UpdateException
 	 * @throws Exception
 	 */
-	public void updateCoupon(Coupon coupon) throws Exception {
+	public Coupon updateCoupon(Coupon coupon) throws Exception {
 		if (companyId == 0) {
 			System.out.println("the operation was canceled due to not being loged in");
 		}
@@ -159,7 +167,13 @@ public class CompanyFacade implements CouponClientFacade {
 					Date endDate = (Date) coupon.getEnd_date();
 					if (startDate.getTime() <= endDate.getTime()) {
 						couponDAO.updateCoupon(coupon);
-						System.out.println("update coupon by company succsess!!");
+						long id = couponDAO.insertCoupon(coupon);
+						if(id != 0) {
+							System.out.println("update coupon by company succsess!!");
+							return couponDAO.getCoupon(id);
+						}else {
+							throw new CouponException("Update Coupon failed by company!");
+						}
 
 					} else {
 						System.out.println(" Update Coupon failed by company!");
@@ -168,6 +182,7 @@ public class CompanyFacade implements CouponClientFacade {
 				}
 			}
 		}
+		return coupon;
 	}
 
 	/**

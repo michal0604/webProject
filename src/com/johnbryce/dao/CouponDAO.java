@@ -22,19 +22,21 @@ public interface CouponDAO {
 	 * Inserts a coupon data set to the Database
 	 * 
 	 * @param coupon coupon to be inserted
+	 * @return 
 	 * @throws CreateException for problems in inserting the coupon to the DB 
 	 * @throws SQLException for DB related failures 
 	 */
-	void insertCoupon(Coupon coupon) throws CreateException, SQLException;
+	long insertCoupon(Coupon coupon) throws CreateException, SQLException;
 	
 	/**
 	 * updates a coupon into the Database
 	 * 
 	 * @param coupon coupon to update
+	 * @return 
 	 * @throws UpdateException for problems in updating the coupon to the DB
 	 * @throws CreateException for problems in inserting the coupon to the DB 
 	 */
-	void updateCoupon(Coupon Coupon) throws UpdateException, CreateException;
+	long updateCoupon(Coupon Coupon) throws UpdateException, CreateException;
 
 
 	/**

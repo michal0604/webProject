@@ -19,17 +19,19 @@ public interface CustomerDAO {
 	/**
 	 * this method get customer object and put it on customer table.
 	 * @param Customer
+	 * @return 
 	 * @throws CreateException
 	 */
-	void insertCustomer(Customer Customer) throws CreateException;
+	long insertCustomer(Customer Customer) throws CreateException;
 
 	/**
 	 * 
 	 * This method get Customer object and update the line in the Customer table by customer ID.
 	 * @param Customer
+	 * @return 
 	 * @throws UpdateException
 	 */
-	void updateCustomer(Customer Customer) throws UpdateException;
+	long updateCustomer(Customer Customer) throws UpdateException;
 
 	/**
 	 * this method get customer and remove it from customer table.

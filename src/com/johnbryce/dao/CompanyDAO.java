@@ -20,10 +20,11 @@ public interface CompanyDAO {
 	 * Inserts a company data set to the Database
 	 * 
 	 * @param company company to be inserted
+	 * @return 
 	 * @throws CouponException for problems in inserting the company to the DB 
 	 * @throws SQLException for DB related failures 
 	 */
-	void insertCompany(Company company) throws CouponException, SQLException;
+	long insertCompany(Company company) throws CouponException, SQLException;
 
 	/**
 	 * remove a company  from the Database
@@ -39,9 +40,10 @@ public interface CompanyDAO {
 	 * updates a company into the Database
 	 * 
 	 * @param company company to update
+	 * @return 
 	 * @throws CompanyException for error related to the retrieval of the company
 	 */
-	void updateCompany(Company company) throws   CompanyException;
+	long updateCompany(Company company) throws   CompanyException;
 
 	/**
 	 * get a company data set by the company's id.

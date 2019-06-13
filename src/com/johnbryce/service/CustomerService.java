@@ -14,8 +14,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.derby.tools.sysinfo;
-
 import com.johnbryce.beans.Coupon;
 import com.johnbryce.beans.CouponType;
 import com.johnbryce.exception.CouponException;

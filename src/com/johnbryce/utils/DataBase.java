@@ -59,7 +59,7 @@ public class DataBase {
 			pstmt.executeUpdate();
 			System.out.println("Droped Customer_Coupon Table");
 		} catch (Exception e) {
-			throw new RemoveException("Customer_Coupon Table did not drop: " + e.getMessage());
+			//throw new RemoveException("Customer_Coupon Table did not drop: " + e.getMessage());
 		}
 		sql = "DROP TABLE Company_Coupon";
 		try {
@@ -68,7 +68,7 @@ public class DataBase {
 			pstmt.executeUpdate();
 			System.out.println("Droped Company_Coupon Table");
 		} catch (Exception e) {
-			throw new RemoveException("Company_Coupon Table did not drop: " + e.getMessage());
+			//throw new RemoveException("Company_Coupon Table did not drop: " + e.getMessage());
 		}
 
 		sql = "DROP TABLE Company";
@@ -78,7 +78,7 @@ public class DataBase {
 			pstmt.executeUpdate();
 			System.out.println("Droped Company Table");
 		} catch (Exception e) {
-			throw new RemoveException("Company Table did not drop: " + e.getMessage());
+			//throw new RemoveException("Company Table did not drop: " + e.getMessage());
 		}
 		sql = "DROP TABLE CUSTOMER";
 		try {	
@@ -86,7 +86,7 @@ public class DataBase {
 			pstmt.executeUpdate();
 			System.out.println("Droped Customer Table");
 		} catch (Exception e) {
-			throw new RemoveException("Customer Table did not drop: " + e.getMessage());
+			//throw new RemoveException("Customer Table did not drop: " + e.getMessage());
 		}
 		sql = "DROP TABLE Coupon";
 		
@@ -95,7 +95,8 @@ public class DataBase {
 			pstmt.executeUpdate();
 			System.out.println("Droped COUPON Table");
 		} catch (Exception e) {
-			throw new RemoveException("COUPON Table did not exist");
+			//throw new RemoveException("COUPON Table did not exist");
+			
 		}
         finally {
 			connection.close();
@@ -133,7 +134,7 @@ public class DataBase {
 		}
 		
 		// create Company table
-		 sql = "create table Company (" + "ID bigint not null primary key enerated always as identity(start with 1, increment by 1), " + "COMP_NAME varchar(50) not null, "
+		 sql = "create table Company (" + "ID bigint not null primary key generated always as identity(start with 1, increment by 1), " + "COMP_NAME varchar(50) not null, "
 				+ "PASSWORD varchar(50) not null, " + "EMAIL varchar(50) not null)";
 		
 		try {
@@ -143,7 +144,7 @@ public class DataBase {
 		} catch (SQLException e) {
 			throw new CreateException("create company didn't succeed");
 		}
-		sql = "create table Customer (" + "ID bigint not null primary keyenerated always as identity(start with 1, increment by 1), " + "CUST_NAME varchar(50) not null, "
+		sql = "create table Customer (" + "ID bigint not null primary key generated always as identity(start with 1, increment by 1), " + "CUST_NAME varchar(50) not null, "
 				+ "PASSWORD varchar(50) not null)";
 		try {
 			PreparedStatement pstmt = connection.prepareStatement(sql);	 
@@ -153,7 +154,7 @@ public class DataBase {
 			throw new CreateException("create customer didn't succeed");
 		}
 
-			 sql = "create table Coupon (" + "ID bigint not null primary key enerated always as identity(start with 1, increment by 1), " + "TITLE varchar(50) not null, "
+			 sql = "create table Coupon (" + "ID bigint not null primary key generated always as identity(start with 1, increment by 1), " + "TITLE varchar(50) not null, "
 					+ "START_DATE date not null, " + "END_DATE date not null, " + "AMOUNT integer not null, "
 					+ "TYPE varchar(50) not null, " + "MESSAGE varchar(50) not null, " + " PRICE float not null, "
 					+ "IMAGE varchar(200) not null)";
