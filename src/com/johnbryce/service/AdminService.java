@@ -17,10 +17,12 @@ import com.johnbryce.beans.Company;
 import com.johnbryce.beans.Customer;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.facad.AdminFacad;
+import com.johnbryce.facad.CouponClientFacade;
+import com.sun.net.httpserver.Authenticator.Success;
 
 import sun.security.jgss.LoginConfigImpl;
 
-@Path("admin")
+@Path("/admin")
 public class AdminService {
 
 	@Context
@@ -33,15 +35,21 @@ public class AdminService {
 		return admin;
 	}
 
-	@Path("login")
+	@Path("/login")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String Login(@QueryParam("name") String name, @QueryParam("pass") String password) {
 		AdminFacad admin = getFacade();
-		admin.login(name, password);		
+		CouponClientFacade a = admin.login(name, password);
+		System.out.println("we are here mamy");
+		if (a == null) {
+			return new Gson().toJson("fail");
+		} else {
+			return new Gson().toJson("succes");
+		}
 	}
-	
+
 	@GET
-	@Path("createCompany")
+	@Path("/createCompany")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createCompany(@QueryParam("name") String compName, @QueryParam("pass") String password,
 			@QueryParam("email") String email) {
@@ -87,7 +95,7 @@ public class AdminService {
 		try {
 			Company company = admin.getCompany(id);
 			if (company != null) {
-				company =  admin.updateCompany(company, password, email);
+				company = admin.updateCompany(company, password, email);
 				return new Gson().toJson(company);
 			} else {
 				return "Failed to update a company: the provided company id is invalid";

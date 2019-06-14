@@ -14,23 +14,15 @@ import com.johnbryce.facad.CouponClientFacade;
 import com.johnbryce.utils.ClientType;
 import com.johnbryce.utils.CouponSystem;
 
-/**
- * Servlet implementation class LoginServlet
- */
+
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
-	private static final long serialVersionUID = 1L;
+	
 	private CouponSystem system;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
-	public LoginServlet() {
-		super();
-	}
 
-	// init function - start the Coupon System
+
 	@Override
 	public void init() {
 			try {
@@ -62,14 +54,18 @@ public class LoginServlet extends HttpServlet {
 											// client
 		System.out.println(session.getId() +" * "+ session.getMaxInactiveInterval());
 		// getting the data from the Login HTML form
+		System.out.println("I'm here");
 		String username = request.getParameter("name");
+		System.out.println(username);
 		String password = request.getParameter("pass");
+		System.out.println(password);
 		String clientType = request.getParameter("type");
-		ClientType type = ClientType.valueOf(clientType); // convert String to
+		System.out.println(clientType);
+		ClientType type = ClientType.valueOf(clientType.toUpperCase()); // convert String to
 															// ENUM
 
 		try {
-
+System.out.println("I'm here2");
 			CouponClientFacade facade = system.login(username, password, type);
 			System.out.println("loginServlet: request = " + request); // for
 																		// debug
