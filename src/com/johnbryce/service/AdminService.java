@@ -33,6 +33,7 @@ public class AdminService {
 		return admin;
 	}
 
+	@GET
 	@Path("login")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String Login(@QueryParam("name") String name, @QueryParam("pass") String password) {
