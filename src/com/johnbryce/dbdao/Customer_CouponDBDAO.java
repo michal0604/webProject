@@ -14,8 +14,7 @@ import com.johnbryce.exception.CouponException;
 import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.RemoveException;
 import com.johnbryce.exception.UpdateException;
-
-import projectCoupon.utils.ConnectionPool;
+import com.johnbryce.utils.ConnectionPool;
 
 /**
  *  this class lists the Data operations the association of a coupon to a customer

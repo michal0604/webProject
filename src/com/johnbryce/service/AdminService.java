@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -13,8 +12,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.google.gson.Gson;
 import com.johnbryce.beans.Company;
-import com.johnbryce.dao.CompanyDAO;
+import com.johnbryce.beans.Customer;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.facad.AdminFacad;
 
@@ -27,267 +27,186 @@ public class AdminService {
 	private HttpServletResponse response;
 
 	private AdminFacad getFacade() {
-
-		AdminFacad admin = null;
-		admin = (AdminFacad) request.getSession(false).getAttribute("facade");
+		AdminFacad admin = (AdminFacad) request.getSession(false).getAttribute("facade");
 		return admin;
 	}
+
 	
-	
-	
-	// Create a new company in the db
 	@GET
-	@Consumes({MediaType.TEXT_PLAIN}) 
-	@Produces({MediaType.APPLICATION_JSON})
 	@Path("createCompany")
-	public String createCompany(@QueryParam("name") String name,
-								@QueryParam("password") String password,
-								@QueryParam("email") String email) throws Exception {
-		
-		AdminFacad admin = getFacade();
-		
-		Company company = new Company();
-		company.setCompName(name);
-		company.setPassword(password);
-		company.setEmail(email);
-		try {
-		admin.createCompany(company);
-		return "Company " + name + " Succesfully Created. ";
+	@Produces(MediaType.APPLICATION_JSON)
+	public String createCompany(@QueryParam("name") String compName, @QueryParam("pass") String password,
+			@QueryParam("email") String email) {
 
+		AdminFacad admin = getFacade();
+		Company company = new Company(compName, password, email);
+		try {
+			company = admin.createCompany(company);
+			return new Gson().toJson(company);
+		} catch (CouponException e) {
+			return "Failed to Add a new Company:" + e.getMessage();
 		}
-		 catch (Exception e2) {
-			 
-				try {
-					throw new Exception("create company failed by admin");
-				} catch (Exception e) {
-					throw new Exception("create company failed by admin");
-				}
-			 }
-		 
-		 }
-	
+
+	}
+
 	@GET
-	@Consumes({MediaType.TEXT_PLAIN})
-	@Produces({MediaType.APPLICATION_JSON})
 	@Path("removeCompany")
-	
-	public String removeCompany(@QueryParam("compId") long compId) throws CouponException {
+	@Produces(MediaType.TEXT_PLAIN)
+	public String removeCompany(@QueryParam("compId") long id) {
+
 		AdminFacad admin = getFacade();
-		Company company = null;
-		String name;
 		try {
-			name = admin.getCompany(compId).getCompName();
-		} catch (CouponException e1) {
-			throw new CouponException("didnt success to get company");
+			Company company = admin.getCompany(id);
+			if (company != null) {
+				admin.removeCompany(company);
+				return "Succeded to remove a company: name = " + company.getCompName() + ", id = " + id;
+			} else {
+				return "Failed to remove a company: the provided company id is invalid";
+			}
+		} catch (CouponException e) {
+			return "Failed to remove a company: " + e.getMessage();
 		}
-		try {
-			admin.removeCompany(company);
-			return "Company " + name + " Succesfully Removed. ";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Remove Company Failed";
-		}
+
 	}
 
+	@GET
+	@Path("updateCompany")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String updateCompany(@QueryParam("compId") long id, @QueryParam("pass") String password,
+			@QueryParam("email") String email) {
 
-	// UPDATE a company
-		@GET
-		@Path("updateCompany")
-		@Produces(MediaType.TEXT_PLAIN)
-		public String updateCompany(@QueryParam("compId") long id, @QueryParam("pass") String password,
-				@QueryParam("email") String email) {
-
-			AdminFacad admin = getFacade();
-
-			try {
-				Company company = admin.getCompany(id);
-
-				if (company != null) {
-					
-					company.setPassword(password);
-					company.setEmail(email);
-					admin.updateCompany(company,password,email);
-					return "SUCCEED TO UPDATE A COMPANY: pass = " + company.getPassword() + ",e-mail = "
-							+ company.getEmail() + ", id = " + id;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+		AdminFacad admin = getFacade();
+		try {
+			Company company = admin.getCompany(id);
+			if (company != null) {
+				company =  admin.updateCompany(company, password, email);
+				return new Gson().toJson(company);
+			} else {
+				return "Failed to update a company: the provided company id is invalid";
 			}
-
-			return "FAILED TO UPDATE A COMPANY";
-
+		} catch (CouponException e) {
+			return "Failed to update a company: " + e.getMessage();
 		}
 
-	/**
-	 * This method get company id and return the line from Company table as Company object.
-	 * @param id
-	 * @return
-	 * @throws CouponException
-	 */
-		@GET
-		@Path("getCompany")
-		@Produces(MediaType.TEXT_PLAIN)
-		public String getCompany(@QueryParam("compId") long id) {
+	}
 
-			AdminFacad admin = getFacade();
+	@GET
+	@Path("getAllCompanies")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getAllCompanies() {
+		AdminFacad admin = getFacade();
+		Set<Company> companies;
+		try {
+			companies = admin.getAllCompanies();
+		} catch (CouponException e) {
+			System.err.println("Get all Companies failed: " + e.getMessage());
+			companies = new HashSet<Company>();
+		}
+		return new Gson().toJson(companies);
+	}
 
-			try {
-				Company company = admin.getCompany(id);
-				if (company != null) {
-					return new Gson().toJson(new CompanyInfo(company));				
-				}
-			} catch (DbdaoException e) {
-				e.printStackTrace();
+	@GET
+	@Path("getCompany")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getCompany(@QueryParam("compId") long id) {
+		AdminFacad admin = getFacade();
+		try {
+			Company company = admin.getCompany(id);
+			if (company != null) {
+				return new Gson().toJson(company);
+			} else {
+				return null;
 			}
-
-			System.err
-					.println("FAILED GET COMPANY BY ID: there is no such id!" + id + " - please enter another company id"); // for
-
+		} catch (CouponException e) {
+			System.err.println("get company by id failed " + e.getMessage());
 			return null;
 		}
+	}
 
-	/**
-	 * This method return all the Companies as a list.
-	 * @return
-	 * @throws CouponException
-	 */
-		@GET
-		@Path("getAllCompanies")
-		@Produces(MediaType.TEXT_PLAIN)
-		public String getAllCompanies() {
+	@GET
+	@Path("createCustomer")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String Customer(@QueryParam("name") String custName, @QueryParam("pass") String password) {
 
-			// Getting the session and the logged in facade object
-			AdminFacad admin = getFacade();
+		AdminFacad admin = getFacade();
+		Customer customer = new Customer(custName, password);
+		try {
+			customer = admin.createCustomer(customer);
+			return new Gson().toJson(customer);
+		} catch (CouponException e) {
+			return "Failed to Add a new customer:" + e.getMessage();
+		}
+	}
 
-			// Get the List of all the Companies from the Table in the DataBase
+	@GET
+	@Path("removeCustomer")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String removeCustomer(@QueryParam("custId") long id) {
 
-			try {
-				Set<Company> companies = admin.getAllCompanies();
-				Set<CompanyInfo> companiesInfo = new HashSet<>();
+		AdminFacad admin = getFacade();
 
-				if (!companies.isEmpty()) {
-					for (Company company : companies) {
-						CompanyInfo comapnyInfo = new CompanyInfo(company);
-						companiesInfo.add(comapnyInfo);
-					}
-				}
-
-				return new Gson().toJson(companiesInfo);
-
-			} catch (Exception e) {
-				e.printStackTrace();
+		try {
+			Customer customer = admin.getCustomer(id);
+			if (customer != null) {
+				admin.removeCustomer(customer);
+				return "Succeded to remove a customer: name = " + customer.getCustomerName();
+			} else {
+				return "Failed to remove a customer: the provided customer id is invalid";
 			}
+		} catch (CouponException e) {
+			return "Failed to remove a customer: " + e.getMessage();
+		}
 
-			System.out.println("AdminService: FAILED GET ALL COMOPANIES"); 
+	}
+
+	@GET
+	@Path("updateCustomer")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String updateCustomer(@QueryParam("custId") long id, @QueryParam("pass") String password) {
+		AdminFacad admin = getFacade();
+		try {
+			Customer customer = admin.getCustomer(id);
+			if (customer != null) {
+				customer = admin.updateCustomer(customer, password);
+				return new Gson().toJson(customer);
+			} else {
+				return "Failed to update a customer: the provided customer id is invalid";
+			}
+		} catch (CouponException e) {
+			return "Failed to update a customer: " + e.getMessage();
+		}
+	}
+
+	@GET
+	@Path("getAllCustomers")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getAllCustomers() {
+		AdminFacad admin = getFacade();
+		Set<Customer> customers;
+		try {
+			customers = admin.getAllCustomers();
+		} catch (CouponException e) {
+			System.err.println("Get all customers failed: " + e.getMessage());
+			customers = new HashSet<Customer>();
+		}
+		return new Gson().toJson(customers);
+	}
+
+	@GET
+	@Path("getCustomer")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getCustomer(@QueryParam("custId") long id) {
+		AdminFacad admin = getFacade();
+		try {
+			Customer customer = admin.getCustomer(id);
+			if (customer != null) {
+				return new Gson().toJson(customer);
+			} else {
+				return null;
+			}
+		} catch (CouponException e) {
+			System.err.println("get customer by id failed " + e.getMessage());
 			return null;
-		}
-
-	/**
-	 * This method get Customer as object and send it to create line in Customer table.
-	 * first we check that the name not exist.
-	 * @param customer
-	 * @throws CouponException
-	 */
-		@GET
-		@Path("createCustomer")
-		@Produces(MediaType.TEXT_PLAIN)
-		public String Customer(@QueryParam("name") String custName, @QueryParam("pass") String password) {
-
-			AdminFacad admin = getFacade();
-			Customer customer = new Customer(custName, password);
-		if (customer != null) {
-			String custName = customer.getCustomerName();
-			if (custName != null) {
-				if (customer.getPassword() != null) {
-					try {
-						if (!customerDAO.isCustomerNameExists(custName)) {
-							customerDAO.insertCustomer(customer);
-						}
-					} catch (CustomerException e) {
-						throw new CouponException("create customer by admin failed");
-
-					} catch (CreateException e) {
-						throw new CouponException("create customer by admin failed");
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 *  This method get Customer as object and take all its coupons and delete all the lines with those coupons
-	 * from Customer_Coupon table and the line from Customer table
-	 * @param customer
-	 * @throws CouponException
-	 */
-	public void removeCustomer(Customer customer) throws CouponException {
-		if (!isLogedIn) {
-			throw new CouponException("the operation was canceled due to not being loged in");
-		}
-		try {
-			customer_CouponDAO.removeCustomer_Coupon(customer);
-		} catch (RemoveException e) {
-			throw new CouponException("remove customer_coupon by admin failed");
-		}
-		try {
-			customerDAO.removeCustomer(customer);
-		} catch (RemoveException e) {
-			throw new CouponException("remove customer by admin failed");
-		}
-
-	}
-
-	/**
-	 *  This method get Customer,and new password as object and send it to method that update line in the Customer table.
-	 * The method don't update the name
-	 * @param customer
-	 * @param newpassword
-	 * @throws CouponException
-	 */
-	public void updateCustomer(Customer customer, String newpassword) throws CouponException {
-		if (!isLogedIn) {
-			throw new CouponException("the operation was canceled due to not being loged in");
-		}
-
-		customer.setPassword(newpassword);
-		try {
-			customerDAO.updateCustomer(customer);
-		} catch (UpdateException e) {
-			throw new CouponException("update customer by admin failed");
-		}
-
-	}
-
-	/**
-	 *  This method return all the Customers as a list.
-	 * @return
-	 * @throws CouponException
-	 */
-	public Set<Customer> getAllCustomers() throws CouponException {
-		if (!isLogedIn) {
-			throw new CouponException("the operation was canceled due to not being loged in");
-		}
-		try {
-			return customerDAO.getAllCustomers();
-		} catch (CustomerException e) {
-			throw new CouponException("get all customers by admin failed");
-		}
-	}
-
-	/**
-	 * This method get Customer id and return the line from Customer table as Customer object.
-	 * @param id
-	 * @return
-	 * @throws CouponException
-	 */
-	public Customer getCustomer(long id) throws CouponException {
-		if (!isLogedIn) {
-			throw new CouponException("the operation was canceled due to not being loged in");
-		}
-		try {
-			return customerDAO.getCustomer(id);
-		} catch (CustomerException e) {
-			throw new CouponException("get customer by admin failed");
 		}
 	}
 

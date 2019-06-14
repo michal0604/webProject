@@ -49,6 +49,46 @@ public class Coupon {
 		setPrice(price);
 		setImage(image);
 	}
+	
+	public Coupon(long couponId, String title, Date start_date, Date end_date, int amount, String type, String message, Double price, String image) {
+		this(couponId, title, start_date, end_date, amount, resolveType(type), message, price, image);
+	}
+
+	public Coupon(String title, Date start_date, Date end_date, int amount, CouponType type,String message,Double price, String image) {
+		setTitle(title);
+		setStart_date(start_date);
+		setEnd_date(end_date);
+		setAmount(amount);
+		setType(type);
+		setMessage(message);
+		setPrice(price);
+		setImage(image);
+	}
+	
+	public Coupon(String title, Date start_date, Date end_date, int amount, String type,String message,Double price, String image) {
+		this(title, start_date, end_date, amount, resolveType(type), message, price, image);
+	}
+
+	public static CouponType resolveType(String type) {
+		switch (type) {
+		case "Food":
+			return CouponType.Food;
+		case "Resturans":
+			return CouponType.Resturans;
+		case "Electricity":
+			return CouponType.Electricity;
+		case "Health":
+			return CouponType.Health;
+		case "Sports":
+			 return CouponType.Sports;
+		case "Camping":
+			 return CouponType.Camping;
+		case "Traveling":
+			 return CouponType.Traveling;
+		default:
+			return null;
+		}
+	}
 
 	/**
 	 * @return the coupon id

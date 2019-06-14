@@ -13,8 +13,7 @@ import com.johnbryce.dbdao.Customer_CouponDBDAO;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.exception.CreateException;
 import com.johnbryce.exception.UpdateException;
-
-import projectCoupon.utils.Utile;
+import com.johnbryce.utils.Utile;
 
 /**
  * @author Eivy & Michal

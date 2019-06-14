@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,14 +14,13 @@ import com.johnbryce.dao.CompanyDAO;
 import com.johnbryce.exception.CompanyException;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.exception.CreateException;
-
-import projectCoupon.utils.ConnectionPool;
+import com.johnbryce.utils.ConnectionPool;
 
 /**
  * this class implement the DB operations associated with the Company's data
  * access requirements.
  * 
- * @author Eivy & Michal
+ * @author Michal & Eivy
  *
  */
 
@@ -52,21 +51,27 @@ public class CompanyDBDAO implements CompanyDAO {
 	 *             for DB related failures
 	 * 
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#insertCompany
+	 * @see projectCoupon.dao.CompanyDAO#insertCompany
 	 */
 	@Override
-	public void insertCompany(Company Company) throws CouponException, SQLException {
+	public long insertCompany(Company Company) throws CouponException, SQLException {
 		pool = ConnectionPool.getInstance();
 		Connection connection = pool.getConnection();
-		String sql = "insert into Company(ID, COMP_NAME, PASSWORD, EMAIL) values (?,?,?,?)";
+		String sql = "insert into Company(COMP_NAME, PASSWORD, EMAIL) values (?,?,?)";
 
 		try {
-			PreparedStatement pstmt = connection.prepareStatement(sql);
-			pstmt.setLong(1, Company.getCompanyId());
-			pstmt.setString(2, Company.getCompName());
-			pstmt.setString(3, Company.getPassword());
-			pstmt.setString(4, Company.getEmail());
+			PreparedStatement pstmt = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+			pstmt.setString(1, Company.getCompName());
+			pstmt.setString(2, Company.getPassword());
+			pstmt.setString(3, Company.getEmail());
 			pstmt.executeUpdate();
+					 
+			ResultSet rs = pstmt.getGeneratedKeys();
+			long generatedKey = 0;
+			if (rs.next()) {
+			    generatedKey = rs.getLong(1);
+			}
+			return generatedKey;
 		} catch (SQLException ex) {
 			throw new CouponException("Company creation failed " + ex.getMessage());
 		} finally {
@@ -86,7 +91,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws SQLException
 	 *             SQLException for DB related failures
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#removeCompany
+	 * @see projectCoupon.dao.CompanyDAO#removeCompany
 	 */
 	@Override
 	public void removeCompany(Company Company) throws CouponException, SQLException {
@@ -120,10 +125,10 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws SQLException
 	 *             for DB related failures
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#updateCompany
+	 * @see projectCoupon.dao.CompanyDAO#updateCompany
 	 */
 	@Override
-	public void updateCompany(Company Company) throws CompanyException {
+	public long updateCompany(Company Company) throws CompanyException {
 		try {
 			pool = ConnectionPool.getInstance();
 		} catch (CouponException e) {
@@ -139,12 +144,18 @@ public class CompanyDBDAO implements CompanyDAO {
 		}
 		try {
 			String sql = "update Company set COMP_NAME= ?,PASSWORD = ?, EMAIL= ? where ID = ?";
-			PreparedStatement stm1 = connection.prepareStatement(sql);
+			PreparedStatement stm1 = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 			stm1.setString(1, Company.getCompName());
 			stm1.setString(2, Company.getPassword());
 			stm1.setString(3, Company.getEmail());
 			stm1.setLong(4, Company.getCompanyId());
 			stm1.executeUpdate();
+			ResultSet rs = stm1.getGeneratedKeys();
+			long generatedKey = 0;
+			if (rs.next()) {
+			    generatedKey = rs.getLong(1);
+			}
+			return generatedKey;
 		} catch (SQLException e) {
 			throw new CompanyException("update company failed " + e.getMessage());
 		} finally {
@@ -172,7 +183,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws SQLException
 	 *             for DB related failures
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#getCompany
+	 * @see projectCoupon.dao.CompanyDAO#getCompany
 	 */
 	
 	@Override
@@ -211,7 +222,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws ConnectionException
 	 *             error occurring due to connection problems
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#getAllCompanys
+	 * @see projectCoupon.dao.CompanyDAO#getAllCompanys
 	 */
 	
 	@Override
@@ -227,7 +238,7 @@ public class CompanyDBDAO implements CompanyDAO {
 				String compName = rs.getString(2);
 				String password = rs.getString(3);
 				String email = rs.getString(4);
-				set.add(new Company(id, compName, password, email));
+				set.add(new Company(id,compName, password, email));
 			}
 		} catch (SQLException e) {
 			throw new CouponException("cannot get Company data " + e.getMessage());
@@ -253,7 +264,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws ConnectionException
 	 *             error occurring due to connection problems
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#login(java.lang.String, java.lang.String)
+	 * @see projectCoupon.dao.CompanyDAO#login(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public Company login(String compName, String password) throws CouponException, SQLException, CompanyException {
@@ -303,7 +314,7 @@ public class CompanyDBDAO implements CompanyDAO {
 	 * @throws ConnectionException
 	 *             error occurring due to connection problems
 	 * 
-	 * @see com.johnbryce.dao.CompanyDAO#getAllCompanys
+	 * @see projectCoupon.dao.CompanyDAO#getAllCompanys
 	 */
 
 	@Override

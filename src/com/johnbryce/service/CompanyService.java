@@ -1,300 +1,193 @@
-package com.johnbryce.facad;
+package com.johnbryce.service;
 
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+
+import com.google.gson.Gson;
 import com.johnbryce.beans.Company;
 import com.johnbryce.beans.Coupon;
 import com.johnbryce.beans.CouponType;
-import com.johnbryce.dao.CompanyDAO;
-import com.johnbryce.dao.Company_CouponDAO;
-import com.johnbryce.dao.CouponDAO;
-import com.johnbryce.dao.Customer_CouponDAO;
-import com.johnbryce.dbdao.CompanyDBDAO;
-import com.johnbryce.dbdao.Company_CouponDBDAO;
-import com.johnbryce.dbdao.CouponDBDAO;
-import com.johnbryce.dbdao.Customer_CouponDBDAO;
-import com.johnbryce.exception.CompanyException;
-import com.johnbryce.exception.CouponException;
-import com.johnbryce.exception.CreateException;
-import com.johnbryce.exception.RemoveException;
-import com.johnbryce.exception.UpdateException;
+import com.johnbryce.facad.CompanyFacade;
 
-import projectCoupon.utils.Utile;
+@Path("company")
+public class CompanyService {
 
-public class CompanyFacade implements CouponClientFacade {
+	@Context
+	private HttpServletRequest request;
+	@Context
+	private HttpServletResponse response;
 
-	private CompanyDAO companyDAO;
-	private CouponDAO couponDAO;
-	private Company_CouponDAO company_CouponDAO;
-	private Customer_CouponDAO customer_CouponDAO;
-	//private long companyId = 0;
-	private long companyId;
-	private Company company;
-	//private long customerId;
-	
-	
-	/**
-	 * cTor for company handling system
-	 * 
-	 * @throws CouponException
-	 *             for errors in creation of the resources needed for the system
-	 */
-	public CompanyFacade() throws CouponException {
-		companyDAO = new CompanyDBDAO();
-		couponDAO = new CouponDBDAO();
-		company_CouponDAO = new Company_CouponDBDAO();
-		customer_CouponDAO=new Customer_CouponDBDAO();
-	}
+	private CompanyFacade getFacade() {
 
-	/**
-	 * this method returns a company iff the user password is correct.
-	 * 
-	 * @param name
-	 *            name for login
-	 * @param password
-	 *            password for login
-	 * @throws CouponException
-	 *             for problem retrieving the company data.
-	 * @throws SQLException
-	 *             for DB related failures
-	 * @throws CompanyException
-	 * @throws ConnectionException
-	 *
-	 */
-
-	@Override
-	public CouponClientFacade login(String name, String password) throws Exception{
-		Company company = new Company();
-		company = new CompanyDBDAO().login(name, password);
-		if (company != null) {
-			this.companyId = company.getCompanyId();
-			this.company = company;
-			return this;
-		} else {
-			return null;
-		}	
-	}
-
-	/**
-	 * this method adds a coupon to the system
-	 * 
-	 * @param coupon
-	 *            the coupon to be added.
-	 * @throws ConnectionException
-	 *             errors due to connection problems
-	 * @throws SQLException
-	 *             errors due to SQL problems
-	 * @throws CreateException
-	 *             errors in creation
-	 * @throws CouponException
-	 */
-	public void createCoupon(Coupon coupon) throws Exception {
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		if (coupon != null) {
-			String CoupTitle = coupon.getTitle();
-			if (CoupTitle != null) {
-				Date startDate = (Date) coupon.getStart_date();
-				Date endDate = (Date) coupon.getEnd_date();
-				if (startDate.getTime() <= endDate.getTime()) {
-					if (startDate.getTime() >= Utile.getCurrentDate().getTime()) {
-						if (!couponDAO.isCouponTitleExists(CoupTitle)) {
-							couponDAO.insertCoupon(coupon);
-							company_CouponDAO.insertCompany_Coupon(companyId, coupon.getCouponId());
-							System.out.println("create coupon by company success!!");
-						} else {
-							System.out.println("Coupon Title is Already Exists! Create New Coupon is Canceled!");
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * @param coupId
-	 * @param customerId 
-	 * @throws CouponException 
-	 * @throws RemoveException 
-	 * @throws Exception
-	 */
-	public void removeCouponID(long coupId) throws Exception{
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		if (coupId > 0) {
-			if (company_CouponDAO.isCouponExistsForCompany(companyId, coupId)) {
-				
-				customer_CouponDAO.removeCustomer_CouponByCoupId(coupId);
-					company_CouponDAO.removeCompany_Coupon(companyId, coupId);
-			      
-					couponDAO.removeCouponID(coupId);
-					System.out.println("company succsess to remove coupon!");
-					}else {
-						System.out.println("remove coupon failed");	
-			}
-				
-				
-		}}
-	
-	
-	/**
-	 * @param coupon
-	 * @throws CouponException 
-	 * @throws CreateException 
-	 * @throws UpdateException 
-	 * @throws Exception
-	 */
-	public void updateCoupon(Coupon coupon) throws Exception{
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		if (coupon != null) {
-			long couponId = coupon.getCouponId();
-			if (company_CouponDAO.isCouponExistsForCompany(companyId, couponId)) {
-				Double CoupPrice = coupon.getPrice();
-				if (CoupPrice > 0) {
-					Date startDate = (Date) couponDAO.getCoupon(couponId).getStart_date();
-					Date endDate = (Date) coupon.getEnd_date();
-					if (startDate.getTime() <= endDate.getTime()) {
-						couponDAO.updateCoupon(coupon);
-						System.out.println("update coupon by company succsess!!");
-
-					} else {
-						System.out.println(" Update Coupon failed by company!");
-					}
-		
-				}
-			}
-		}
-	}
-	/**
-	 * @return
-	 * @throws Exception
-	 */
-	public Company getCompany() throws Exception {
-		return companyDAO.getCompany(companyId);
-		
-	}
-
-	/**
-	 * @param coupId
-	 * @return
-	 * @throws CouponException 
-	 * @throws CreateException 
-	 * @throws Exception
-	 */
-	public Coupon getCoupon(long coupId) throws Exception {
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		return couponDAO.getCoupon(coupId);
-	}
-
-	/**
-	 * @return
-	 * @throws CouponException 
-	 * @throws Exception
-	 */
-	public Set<Coupon> getCoupons() throws Exception {
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		Set<Coupon> allCoupons = new HashSet<Coupon>();
-		allCoupons = couponDAO.getAllCoupons();
-		return allCoupons;
-	}
-
-	/**
-	 * @param coupType
-	 * @return
-	 * @throws CouponException 
-	 * @throws CompanyException 
-	 * @throws CreateException 
-	 * @throws Exception
-	 */
-	
-	
-	public Set<Coupon> getAllCouponsByType(CouponType coupType) throws Exception{
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		Set<Coupon> list = new HashSet<Coupon>();
-		Set<Coupon> allCouponsList = companyDAO.getAllCoupons(companyId);
-		for (Coupon coupon : allCouponsList) {
-			if (coupon.getType().equals(coupType)) {
-				list.add(coupon);
-			}
-		}
-		return list;
-	}
-	
-	/**
-	 * @param price
-	 * @return
-	 * @throws CouponException 
-	 * @throws CreateException 
-	 * @throws CompanyException 
-	 * @throws Exception
-	 */
-	
-	public Set<Coupon> getCouponsByMaxCouponPrice(double price) throws Exception{
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		Set<Coupon> list = new HashSet<Coupon>();
-		Set<Coupon> allCouponsList = companyDAO.getAllCoupons(companyId);
-		for (Coupon coupon : allCouponsList) {
-			
-			if (coupon.getPrice() <= price) {
-				list.add(coupon);
-			}
-		}
-		return list;
-	}
-
-
-	/**
-	 * @param endDate
-	 * @return
-	 * @throws CouponException 
-	 * @throws CreateException 
-	 * @throws CompanyException 
-	 * @throws Exception
-	 */
-	
-	
-	public Set<Coupon> getCouponsByMaxCouponDate(Date endDate) throws Exception{
-		if(companyId == 0) {
-			System.out.println("the operation was canceled due to not being loged in");
-		}
-		Set<Coupon> list = new HashSet<Coupon>();
-		Set<Coupon> allCouponsList = companyDAO.getAllCoupons(companyId);
-		for (Coupon coupon : allCouponsList) {
-			if (coupon.getEnd_date().equals(endDate) || coupon.getEnd_date().before(endDate)) {
-				list.add(coupon);
-			}
-		}
-		return list;
-	}
-	
-
-	/**
-	 * @return
-	 * @throws CouponException 
-	 */
-	public Company getCompanyInstance() throws CouponException {
-		if(companyId == 0) {
-			throw new CouponException("the operation was canceled due to not being loged in");
-		}
+		CompanyFacade company = (CompanyFacade) request.getSession(false).getAttribute("facade");
 		return company;
 	}
 
+	@POST
+	@Path("createCoupon")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String createCoupon(Coupon coupon) {
+		CompanyFacade companyFacade = getFacade();
+		try {
+			coupon = companyFacade.createCoupon(coupon);
+			return new Gson().toJson(coupon);
+		} catch (Exception e) {
+			return "Failed to Add a new coupon:" + e.getMessage();
+		}
 
+	}
+
+	@GET
+	@Path("removeCompany")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String removeCompany(@PathParam("compId") long id) {
+
+		CompanyFacade companyFacade = getFacade();
+		try {
+			companyFacade.removeCouponID(id);
+			return "Succeded to remove a coupon:  id = " + id;
+		} catch (Exception e) {
+			return "Failed to remove a coupon: " + e.getMessage();
+		}
+
+	}
+
+	@POST
+	@Path("updateCoupon")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String updateCoupon(Coupon coupon) {
+
+		CompanyFacade companyFacade = getFacade();
+		try {
+			if (coupon != null) {
+				Coupon oldCoupon = companyFacade.getCoupon(coupon.getCouponId());
+				oldCoupon.setTitle(coupon.getTitle());
+				oldCoupon.setStart_date(coupon.getStart_date());
+				oldCoupon.setEnd_date(coupon.getEnd_date());
+				oldCoupon.setAmount(coupon.getAmount());
+				oldCoupon.setType(coupon.getType());
+				oldCoupon.setMessage(coupon.getMessage());
+				oldCoupon.setPrice(coupon.getPrice());
+				oldCoupon.setImage(coupon.getImage());
+				oldCoupon = companyFacade.updateCoupon(oldCoupon);
+				return new Gson().toJson(coupon);
+			} else {
+				return "Failed to update a company: the provided company id is invalid";
+			}
+		} catch (Exception e) {
+			return "Failed to update a company: " + e.getMessage();
+		}
+
+	}
+
+	@GET
+	@Path("getCompany")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getCompany() {
+		CompanyFacade companyFacade = getFacade();
+		Company company;
+		try {
+			company = companyFacade.getCompany();
+		} catch (Exception e) {
+			System.err.println("Get Company failed: " + e.getMessage());
+			company = new Company();
+		}
+
+		return new Gson().toJson(company);
+	}
+
+	@GET
+	@Path("getCoupon")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getCoupon(@PathParam("compId") long id) {
+		CompanyFacade companyFacade = getFacade();
+		try {
+			Coupon coupon = companyFacade.getCoupon(id);
+			if (coupon != null) {
+				return new Gson().toJson(coupon);
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			System.err.println("get coupon by id failed " + e.getMessage());
+			return null;
+		}
+	}
+
+	@GET
+	@Path("getCoupons")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getCoupons() {
+		CompanyFacade companyFacade = getFacade();
+		Set<Coupon> coupons;
+		try {
+			coupons = companyFacade.getCoupons();
+		} catch (Exception e) {
+			System.err.println("Get Coupons failed: " + e.getMessage());
+			coupons = new HashSet<Coupon>();
+		}
+		return new Gson().toJson(coupons);
+	}
 	
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/getAllCouponsByType")
+	public String getAllCouponsByType(@PathParam("type")CouponType type) {
+		CompanyFacade companyFacade = getFacade();
+		Set<Coupon>  allCouponsByType=new HashSet<>();
+		try {
+			allCouponsByType=companyFacade.getAllCouponsByType(type);
+		} catch (Exception e) {
+			System.err.println("Get Coupons by type failed: " + e.getMessage());
+			allCouponsByType = new HashSet<Coupon>();
+		}
+		return new Gson().toJson(allCouponsByType);
+	}
+	
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/getCouponsByMaxCouponPrice")
+	public String getCouponsByMaxCouponPrice(@PathParam("price") double price) {
+		CompanyFacade companyFacade = getFacade();
+		Set<Coupon>  allCouponsByType=new HashSet<>();
+		try {
+			allCouponsByType=companyFacade.getCouponsByMaxCouponPrice(price);
+		} catch (Exception e) {
+			System.err.println("Get Coupons by max price failed: " + e.getMessage());
+			allCouponsByType = new HashSet<Coupon>();
+		}
+		return new Gson().toJson(allCouponsByType);
+	}
+	
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/getCouponsByMaxCouponDate")
+	public String getCouponsByMaxCouponDate(@PathParam("date") Date date) {
+		CompanyFacade companyFacade = getFacade();
+		Set<Coupon>  allCouponsByType=new HashSet<>();
+		try {
+			allCouponsByType=companyFacade.getCouponsByMaxCouponDate(date);
+		} catch (Exception e) {
+			System.err.println("Get Coupons by max dare failed: " + e.getMessage());
+			allCouponsByType = new HashSet<Coupon>();
+		}
+		return new Gson().toJson(allCouponsByType);
+	}
+
 
 }

@@ -30,6 +30,11 @@ public class Customer {
 		setPassword(password);
 	}
 
+	public Customer(String custName, String password) {
+		setCustomerName(customerName);
+		setPassword(password);
+	}
+
 	/**
 	 * @return the customer id
 	 */
