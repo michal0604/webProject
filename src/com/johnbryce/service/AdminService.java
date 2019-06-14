@@ -18,6 +18,8 @@ import com.johnbryce.beans.Customer;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.facad.AdminFacad;
 
+import sun.security.jgss.LoginConfigImpl;
+
 @Path("admin")
 public class AdminService {
 
@@ -31,6 +33,12 @@ public class AdminService {
 		return admin;
 	}
 
+	@Path("login")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String Login(@QueryParam("name") String name, @QueryParam("pass") String password) {
+		AdminFacad admin = getFacade();
+		admin.login(name, password);		
+	}
 	
 	@GET
 	@Path("createCompany")
