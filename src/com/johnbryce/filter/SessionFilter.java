@@ -15,12 +15,12 @@ import javax.servlet.http.HttpSession;
 /**
  * Servlet Filter implementation class FilterSession
  */
-public class SessinFilter implements Filter {
+public class SessionFilter implements Filter {
 
     /**
      * Default empty constructor. 
      */
-    public SessinFilter() {}
+    public SessionFilter() {}
 
     /**
      * @see Filter#init(FilterConfig)
