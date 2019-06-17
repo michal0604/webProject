@@ -5,7 +5,11 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -17,8 +21,9 @@ import com.johnbryce.beans.Company;
 import com.johnbryce.beans.Customer;
 import com.johnbryce.exception.CouponException;
 import com.johnbryce.facad.AdminFacad;
-
-import sun.security.jgss.LoginConfigImpl;
+import com.johnbryce.facad.CouponClientFacade;
+import com.johnbryce.utils.ClientType;
+import com.johnbryce.utils.CouponSystem;
 
 @Path("admin")
 public class AdminService {
@@ -36,12 +41,24 @@ public class AdminService {
 	@GET
 	@Path("login")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String Login(@QueryParam("name") String name, @QueryParam("pass") String password) {
-		AdminFacad admin = getFacade();
-		admin.login(name, password);		
+	public String login(@QueryParam("name") String name, @QueryParam("pass") String password) {
+		try {
+			
+			CouponClientFacade facad = CouponSystem.login(name, password,ClientType.ADMIN);
+			if(facad != null) {
+				request.getSession(true).setAttribute("facade", facad);
+				return "succesfull login";
+			}
+			else {
+				return "faild login - wrong user or password";
+			}
+		} catch (Exception e) {
+			return "faild login "+ e.getMessage();
+		}
+
 	}
-	
-	@GET
+
+	@POST
 	@Path("createCompany")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createCompany(@QueryParam("name") String compName, @QueryParam("pass") String password,
@@ -58,10 +75,10 @@ public class AdminService {
 
 	}
 
-	@GET
+	@DELETE
 	@Path("removeCompany")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String removeCompany(@QueryParam("compId") long id) {
+	public String removeCompany(@PathParam("compId") long id) {
 
 		AdminFacad admin = getFacade();
 		try {
@@ -78,7 +95,7 @@ public class AdminService {
 
 	}
 
-	@GET
+	@PUT
 	@Path("updateCompany")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String updateCompany(@QueryParam("compId") long id, @QueryParam("pass") String password,
@@ -88,7 +105,7 @@ public class AdminService {
 		try {
 			Company company = admin.getCompany(id);
 			if (company != null) {
-				company =  admin.updateCompany(company, password, email);
+				company = admin.updateCompany(company, password, email);
 				return new Gson().toJson(company);
 			} else {
 				return "Failed to update a company: the provided company id is invalid";
@@ -117,7 +134,7 @@ public class AdminService {
 	@GET
 	@Path("getCompany")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getCompany(@QueryParam("compId") long id) {
+	public String getCompany(@PathParam("compId") long id) {
 		AdminFacad admin = getFacade();
 		try {
 			Company company = admin.getCompany(id);
@@ -132,7 +149,7 @@ public class AdminService {
 		}
 	}
 
-	@GET
+	@POST
 	@Path("createCustomer")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String Customer(@QueryParam("name") String custName, @QueryParam("pass") String password) {
