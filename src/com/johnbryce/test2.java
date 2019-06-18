@@ -36,8 +36,8 @@ public class test2 {
 		if (facade instanceof AdminFacad) {
 
 			System.out.println("========  Login(admin, 1234, AdminFacade) ========\n");
-			Database.dropTableifNeeded();
-			Database.createTables();
+			//Database.dropTableifNeeded();
+			//atabase.createTables();
 
 			// Create new 5 companies.
 			Company company01 = new Company(1, "PIZZAHUT", "111", "pizzaHut.com");
